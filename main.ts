@@ -370,11 +370,11 @@ namespace MAX7219_7Seg {
          * @param bit Digit position, eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="MAX7219_7Seg_showbit" block="%tm|show number %num |at %bit|at display %displayIndex"
+        //% blockId="MAX7219_7Seg_showbit" block="%display|show number %num |at %bit|at display %displayIndex"
         //% jsdoc.loc.de="Zeigt eine einzelne Ziffer an einer bestimmten Stelle eines bestimmten Display-Moduls."
         //% jsdoc.loc.en="Shows a single digit at a given position of a given display."
-        //% block.loc.de="%tm|Setze die Ziffer %num |an die Stelle %bit|des Displays %displayIndex"
-        //% block.loc.en="%tm|show number %num |at %bit|at display %displayIndex"
+        //% block.loc.de="%display|Setze die Ziffer %num |an die Stelle %bit|des Displays %displayIndex"
+        //% block.loc.en="%display|show number %num |at %bit|at display %displayIndex"
         //% num.loc.de="Ziffer, die angezeigt werden soll, z.B. 5"
         //% num.loc.en="Number to be shown, e.g. 5"
         //% bit.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
@@ -398,11 +398,11 @@ namespace MAX7219_7Seg {
           * show a number. 
           * @param num Number to be shown, eg: 281
 		*/
-        //% blockId="MAX7219_7Seg_shownumwithleadingzeros" block="%tm|show number %num with leading zeros"
+        //% blockId="MAX7219_7Seg_shownumwithleadingzeros" block="%display|show number %num with leading zeros"
         //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an, z.B. 28 als 0028."
         //% jsdoc.loc.en="Shows a number on the display."
-        //% block.loc.de="%tm|Zeige die Zahl %num und fülle vorne mit Nullen auf."
-        //% block.loc.en="%tm|show number %num with leading zeros"
+        //% block.loc.de="%display|Zeige die Zahl %num und fülle vorne mit Nullen auf."
+        //% block.loc.en="%display|show number %num with leading zeros"
         //% num.loc.de="Zahl, die angezeigt werden soll, z.B. 281"
         //% num.loc.en="Number to be shown, e.g. 281"
         //% weight=40 blockGap=8
@@ -448,11 +448,11 @@ namespace MAX7219_7Seg {
           * show a number with max 4 digits. 
           * @param num is a number with max 4 digits, eg: 1284
 	*/
-        //% blockId="MAX7219_7Seg_shownum" block="%tm|show number %num"
+        //% blockId="MAX7219_7Seg_shownum" block="%display|show number %num"
         //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an."
         //% jsdoc.loc.en="Shows a number on the display."
-        //% block.loc.de="%tm|Zeige die Zahl %num"
-        //% block.loc.en="%tm|show number %num"
+        //% block.loc.de="%display|Zeige die Zahl %num"
+        //% block.loc.en="%display|show number %num"
         //% num.loc.de="Eine Zahl mit max. 4 Stellen, z.B. 1284"
         //% num.loc.en="is a number with max 4 digits, eg: 1284"
         //% weight=50 blockGap=8
@@ -488,11 +488,11 @@ namespace MAX7219_7Seg {
           * show a hex number. 
           * @param numText a hex number, eg: 0xA7F
 	*/
-        //% blockId="MAX7219_7Seg_showhex" block="%tm|show hex number %numText"
+        //% blockId="MAX7219_7Seg_showhex" block="%display|show hex number %numText"
         //% jsdoc.loc.de="Zeigt eine Zahl im Hex-Format (0–F) an."
         //% jsdoc.loc.en="Shows a number in hex (0–F)."
-        //% block.loc.de="%tm|Zeige die Hexadezimalzahl %numText"
-        //% block.loc.en="%tm|show hex number %numText"
+        //% block.loc.de="%display|Zeige die Hexadezimalzahl %numText"
+        //% block.loc.en="%display|show hex number %numText"
         //% numText.loc.de="Eine Hexadezimalzahl, z.B. 0xA7F"
         //% numText.loc.en="a hex number, eg: 0xA7F"
         //% weight=30 blockGap=8
@@ -526,11 +526,11 @@ namespace MAX7219_7Seg {
          * @param displayIndex is the display index, eg: 0
          * @param show is show/hide dp, eg: true
 	*/
-        //% blockId="MAX7219_7Seg_showDP" block="%tm|DotPoint at digit %bit|of Display %displayIndex|show %show"
+        //% blockId="MAX7219_7Seg_showDP" block="%display|DotPoint at digit %bit|of Display %displayIndex|show %show"
         //% jsdoc.loc.de="Schaltet den Dezimalpunkt (oder Doppelpunkt) ein oder aus."
         //% jsdoc.loc.en="Shows or hides the dot point."
-        //% block.loc.de="%tm|Dezimalpunkt rechts der Stelle %bit|des Displays %displayIndex| setzen %show"
-        //% block.loc.en="%tm|DotPoint at %bit|of Display %displayIndex|show %show"
+        //% block.loc.de="%display|Dezimalpunkt rechts der Stelle %bit|des Displays %displayIndex| setzen %show"
+        //% block.loc.en="%display|DotPoint at %bit|of Display %displayIndex|show %show"
         //% bit.loc.de="Stelle im Display, von der rechts der Punkt angezeigt werden soll, z.B. 1"
         //% bit.loc.en="is the position, eg: 1"
         //% displayIndex.loc.de="Das Display, auf dem der Punkt angezeigt werden soll, z.B. 0"
@@ -548,11 +548,11 @@ namespace MAX7219_7Seg {
         /**
          * clear LED. 
          */
-        //% blockId="MAX7219_7Seg_clear" block="clear all digits of %tm"
+        //% blockId="MAX7219_7Seg_clear" block="clear all digits of %display"
         //% jsdoc.loc.de="Löscht die Anzeige (alle Segmente aus)."
         //% jsdoc.loc.en="Clears the display (all segments off)."
-        //% block.loc.de="Lösche alle Stellen des Displays %tm"
-        //% block.loc.en="clear all digits of %tm"
+        //% block.loc.de="Lösche alle Stellen des Displays %display"
+        //% block.loc.en="clear all digits of %display"
         //% weight=10 blockGap=8
         //% parts="MAX7219_7Seg"
         clear() {
@@ -567,11 +567,11 @@ namespace MAX7219_7Seg {
         /**
          * Turn on all display modules. 
          */
-        //% blockId="MAX7219_7Seg_on" block="turn on %tm"
+        //% blockId="MAX7219_7Seg_on" block="turn on %display"
         //% jsdoc.loc.de="Schaltet das Display ein."
         //% jsdoc.loc.en="Turns the display on."
-        //% block.loc.de="Schalte das Display %tm ein."
-        //% block.loc.en="turn on %tm"
+        //% block.loc.de="Schalte das Display %display ein."
+        //% block.loc.en="turn on %display"
         //% weight=90 blockGap=8
         //% parts="MAX7219_7Seg"
         on() {
@@ -581,11 +581,11 @@ namespace MAX7219_7Seg {
         /**
          * turn off LED. 
          */
-        //% blockId="MAX7219_7Seg_off" block="turn off %tm"
+        //% blockId="MAX7219_7Seg_off" block="turn off %display"
         //% jsdoc.loc.de="Schaltet das Display aus."
         //% jsdoc.loc.en="Turns the display off."
-        //% block.loc.de="Schalte das Display %tm aus."
-        //% block.loc.en="turn off %tm"
+        //% block.loc.de="Schalte das Display %display aus."
+        //% block.loc.en="turn off %display"
         //% weight=80 blockGap=8
         //% parts="MAX7219_7Seg"
         off() {
@@ -756,7 +756,7 @@ namespace MAX7219_7Seg {
     //% numberModules.loc.de="Anzahl der Displays, z.B. 1"
     //% numberModules.loc.en="Count of display, eg: 1"
     //% inlineInputMode=inline count.min=1 count.dflt=1
-    //% blockSetVariable=max
+    //% blockSetVariable=display
     export function create(numberModules: number = 1, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
         let display = new MAX7219_7Seg_obj(numberModules, cs, din, miso, clk);
         display.init();
