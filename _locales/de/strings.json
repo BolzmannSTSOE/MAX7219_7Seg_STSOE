@@ -1,0 +1,51 @@
+{
+"FUNC_INTENSITY": "%tm|Setzt die Helligkeit intensity auf %val",
+"PARA_INTENSITY_VAL": "Die Helligkeit des Displays TM1637.",
+
+
+"FUNC_SEGMENTSAT": "$this(tm)|Segmente a %a b %b c %c d %d e %e f %f g %g|der Stelle %pos",
+"PARA_SEGMENTSAT_SEGMENTSAT_a": "Segment a (oben)",
+"PARA_SEGMENTSAT_SEGMENTSAT_b": "Segment b (rechts oben)",
+"PARA_SEGMENTSAT_SEGMENTSAT_c": "Segment c (rechts unten)",
+"PARA_SEGMENTSAT_SEGMENTSAT_d": "Segment d (unten)",
+"PARA_SEGMENTSAT_SEGMENTSAT_e": "Segment e (links unten)",
+"PARA_SEGMENTSAT_SEGMENTSAT_f": "Segment f (links oben)",
+"PARA_SEGMENTSAT_SEGMENTSAT_g": "Segment g (Mitte)",
+"PARA_SEGMENTSAT_POS": "Stelle im Display des TM1637, z.B. 0 (ganz links)",
+
+
+"FUNC_LIGHTSEGMENTSAT": "$this(tm)|Segmente (z.B. binär) %segments|der Stelle %pos",
+"PARA_LIGHTSEGMENTSAT_SEGMENTS": "Segment-BitMaske (empfohlen binär), z.B. 0b01111111 für 8 oder 0b01100110 für 4",
+"PARA_LIGHTSEGMENTSAT_POS": "Stelle im Display des TM1637, z.B. 0 (ganz links)",
+
+
+"FUNC_SHOWBIT": "%tm|Setze die Ziffer %num |an die Stelle %bit",
+"PARA_SHOWBIT_NUM": "Ziffer, die angezeigt werden soll, z.B. 5",
+"PARA_SHOWBIT_BIT": "Stelle im Display des TM1637, z.B. 0 (ganz links)",
+
+
+"FUNC_SHOWNUMBERWITHLEADINGZEROS": "%tm|Zeige die Zahl %num und fülle vorne mit Nullen auf.",
+"PARA_SHOWNUMBERWITHLEADINGZEROS_NUM": "Zahl, die angezeigt werden soll, z.B. 281",
+
+
+"FUNC_SHOWNUMBER": "%tm|Zeige die Zahl %num",
+"PARA_SHOWNUMBER_NUM": "Eine Zahl mit max. 4 Stellen, z.B. 1284",
+
+
+"FUNC_SHOWHEX": "%tm|Zeige die Hexadezimalzahl %num",
+"PARA_SHOWHEX_NUM": "Eine Hexadezimalzahl, z.B. 0xA7F",
+
+
+"FUNC_SHOWDP": "%tm|Dezimalpunkt rechts der Stelle %bit| setzen %show",
+"PARA_SHOWDP_BIT": "Stelle im Display, von der rechts der Punkt angezeigt werden soll, z.B. 1",
+"PARA_SHOWDP_SHOW": "EIN = Wahr, AUS = Falsch",
+
+
+"FUNC_CLEAR": "Lösche alle Stellen des Displays %tm",
+
+
+"FUNC_ON": "Schalte das Display %tm ein.",
+
+
+"FUNC_OFF": "Schalte das Display %tm aus."
+}

@@ -1,0 +1,51 @@
+{
+"FUNC_INTENSITY": "%tm|set intensity to %val",
+"PARA_INTENSITY_VAL": "the brightness of the TM1637, eg: 7",
+
+
+"FUNC_SEGMENTSAT": "$this(tm)|segments a %a b %b c %c d %d e %e f %f g %g|at %pos",
+"PARA_SEGMENTSAT_SEGMENTSAT_a": "Segment a (top)",
+"PARA_SEGMENTSAT_SEGMENTSAT_b": "Segment b (right top)",
+"PARA_SEGMENTSAT_SEGMENTSAT_c": "Segment c (right bottom)",
+"PARA_SEGMENTSAT_SEGMENTSAT_d": "Segment d (bottom)",
+"PARA_SEGMENTSAT_SEGMENTSAT_e": "Segment e (left bottom)",
+"PARA_SEGMENTSAT_SEGMENTSAT_f": "Segment f (left top)",
+"PARA_SEGMENTSAT_SEGMENTSAT_g": "Segment g (middle)",
+"PARA_SEGMENTSAT_POS": "Digit at display of TM1637, e.g. 0 (most left)",
+
+
+"FUNC_LIGHTSEGMENTSAT": "$this(tm)|light segments (bits) %segments|at %pos",
+"PARA_LIGHTSEGMENTSAT_SEGMENTS": "Segment-bitmask (binary recommended), e.g. 0b01111111 for 8 or 0b01100110 for 4",
+"PARA_LIGHTSEGMENTSAT_POS": "Digit position (0..count-1)",
+
+
+"FUNC_SHOWBIT": "%tm|show number %num |at %bit",
+"PARA_SHOWBIT_NUM": "Number to be shown, e.g. 5",
+"PARA_SHOWBIT_BIT": "Digit position, e.g. 0 (most left)",
+
+
+"FUNC_SHOWNUMBERWITHLEADINGZEROS": "%tm|show number %num with leading zeros",
+"PARA_SHOWNUMBERWITHLEADINGZEROS_NUM": "Number to be shown, e.g. 281",
+
+
+"FUNC_SHOWNUMBER": "%tm|show number %num",
+"PARA_SHOWNUMBER_NUM": "is a number with max 4 digits, eg: 1284",
+
+
+"FUNC_SHOWHEX": "%tm|show hex number %num",
+"PARA_SHOWHEX_NUM": "a hex number, e.g. 0xA7F",
+
+
+"FUNC_SHOWDP": "%tm|DotPoint at %bit|show %show",
+"PARA_SHOWDP_BIT": "is the position, eg: 1",
+"PARA_SHOWDP_SHOW": "is show/hide dp, eg: true",
+
+
+"FUNC_CLEAR": "clear all digits of %tm",
+
+
+"FUNC_ON": "turn on %tm",
+
+
+"FUNC_OFF": "turn off %tm"
+}
