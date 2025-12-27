@@ -72,7 +72,6 @@ namespace MAX7219_7Seg {
 	   * (internal function) write command and data to all MAX7219s
 	   */
 	  _registerAll(addressCode: number, data: number) {
-		if (this._reversed === true) displayIndex = this.numberModules-1 - displayIndex;
 		  
 		// set micro:bit SPI
 		pins.spiPins(this.din, this.miso, this.clk);
@@ -81,7 +80,7 @@ namespace MAX7219_7Seg {
 		  
 		pins.digitalWritePin(this.cs, 0) // LOAD=LOW, start to receive commands
 		//control.waitMicros(MAX7219_PAUSE_TIME_US);
-		for (let i = 0; i < _matrixNum; i++) {
+		for (let i = 0; i < this.numberModules; i++) {
 		  // when a MAX7219 received a new command/data set
 		  // the previous one would be pushed to the next matrix along the chain via DOUT
 		  pins.spiWrite(addressCode) // command (8 bits)
@@ -104,10 +103,10 @@ namespace MAX7219_7Seg {
 		pins.spiFormat(8, 0);
 		pins.spiFrequency(1000000);
 		  
-		if (displayIndex <= _matrixNum - 1) {
+		if (displayIndex <= this.numberModules - 1) {
 		  pins.digitalWritePin(this.cs, 0) // LOAD=LOW, start to receive commands
 		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
-		  for (let i = 0; i < _matrixNum; i++) {
+		  for (let i = 0; i < this.numberModules; i++) {
 			// when a MAX7219 received a new command/data set
 			// the previous one would be pushed to the next matrix along the chain via DOUT
 			if (i == displayIndex) { // send change to target
@@ -441,7 +440,7 @@ namespace MAX7219_7Seg {
 		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
 		*/
 		_getDisplayIndex(num: number) {
-			return this.numberModules-1 - Math.idiv(i,this.count)
+			return this.numberModules-1 - Math.idiv(num,this.count)
 		}
 
         /**
