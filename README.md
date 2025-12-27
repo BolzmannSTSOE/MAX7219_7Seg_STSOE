@@ -6,7 +6,7 @@ LED Digit Display Module with 1-8 (normal eight) 7-segment LED, it can show numb
 Author: AB
 Date:   Dez 2025  
 
-![](https://github.com/BolzmannSTSOE/MAX7219_7Seg_STSOE/8Digit7Segment.jpg)
+![](./8Digit7Segment.jpg)
 
 
 ## Usage
