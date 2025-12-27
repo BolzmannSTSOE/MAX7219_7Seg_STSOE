@@ -8,7 +8,7 @@
 /**
  * Four Digit Display
  */
-//% weight=100 color=#60C926 icon="7"
+//% weight=100 color=#006d19 icon="7"
 namespace MAX7219_7Seg {
 	
   //Registers (command) for MAX7219
@@ -274,7 +274,7 @@ namespace MAX7219_7Seg {
 	 	 * @param pos Digit at display of MAX7219, eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="MAX7219_7Seg_segmentsAt" block="$this(tm)|segments a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
+        //% blockId="MAX7219_7Seg_segmentsAt" block="$this(display)|segments a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
         //% block.loc.de="$this(tm)|Einschalten der Segmente:| a %a b %b c %c d %d e %e f %f g %g|an der Stelle %pos|des Displays %displayIndex"
         //% block.loc.en="$this(tm)|segments:| a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
         //% a.loc.de="Segment a (oben)"
@@ -336,7 +336,7 @@ namespace MAX7219_7Seg {
          * @param pos Digit position (0..count-1), eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="MAX7219_7Seg_lightsegmentsat" block="$this(tm)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
+        //% blockId="MAX7219_7Seg_lightsegmentsat" block="$this(display)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
         //% jsdoc.loc.de="Zeigt Segmente über eine Bitmaske an (für Fortgeschrittene), z.B. 0b00110111 für H oder 0b00110011 für 4."
         //% jsdoc.loc.en="Lights segments using a bitmask (advanced)."
         //% block.loc.de="$this(tm)|Einschalten der Segmente (binär) %segmentsText|der Stelle %pos|des Displays %displayIndex"
