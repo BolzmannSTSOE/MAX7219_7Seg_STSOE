@@ -1,5 +1,5 @@
 /**
-* makecode Four Digit Display (TM1637) Package.
+* makecode Four Digit Display (MAX7219) Package.
 * From microbit/micropython Chinese community.
 * http://www.micropython.org.cn
 * Forked and extended by Andy Bolzmann.
@@ -9,147 +9,244 @@
  * Four Digit Display
  */
 //% weight=100 color=#60C926 icon="7"
-namespace TM1637 {
-    let TM1637_CMD1 = 0x40;
-    let TM1637_CMD2 = 0xC0;
-    let TM1637_CMD3 = 0x80;
-    let TM1637_PAUSE_TIME_US = 10;
-    let _SEGMENTS = [0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71];
+namespace MAX7219_7Seg {
+	
+  //Registers (command) for MAX7219
+  const _NOOP = 0 // no-op (do nothing, doesn't change current status)
+  const _DIGIT = [1, 2, 3, 4, 5, 6, 7, 8] // digit (LED column)
+  const _DECODEMODE = 9 // decode mode (1=on, 0-off; for 7-segment display on MAX7219, no usage here)
+  const _INTENSITY = 10 // intensity-Register (LED brightness level, 0-15)
+  const _SCANLIMIT = 11 // scan limit (number of scanned digits)
+  const _SHUTDOWN = 12 // turn on (1) or off (0)
+  const _DISPLAYTEST = 15 // force all LEDs light up, no usage here
+  const MAX7219_PAUSE_TIME_US = 0
+  // Segments of the 7-Seg: [0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F]
+  //01111110 00110000 01101101 01111001 00110011 
+  //01011011 01011111 01110000 01111111 01111011 
+  //01110111 00011111 01001110 00111101 01001111 01000111
+  let _SEGMENTS = [0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x7B, 0x77, 0x1F, 0x8E, 0x3D, 0x4F, 0x47];
 
     /**
-     * TM1637 LED display
+     * MAX7219 LED display
      */
-    export class TM1637LEDs {
+    export class MAX7219_7Seg_obj {
         buf: Buffer;
+        cs: DigitalPin;
+        din: DigitalPin;
+        miso: DigitalPin;
         clk: DigitalPin;
-        dio: DigitalPin;
-        _ON: number;
-        brightness: number;
-        count: number;  // number of LEDs
+        brightness: number = 1;
+		numberModules: number = 1; // number of MAX7219-Display-Modules in a chain
+        count: number = 8;  // number of digits of a display module
+		_reversed = false
 
-        constructor(clk: DigitalPin, dio: DigitalPin, intensity: number, count: number) {
+        constructor(numberModules: number, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin) {
+			this.numberModules = numberModules;
+			this.cs = cs;
+            this.din = din;
+            this.miso = miso;
             this.clk = clk;
-            this.dio = dio;
-            this.count = count;
-            this.brightness = intensity;
         }
 
         /**
-         * initial TM1637
+         * initial MAX7219
          */
         init(): void {
-            pins.digitalWritePin(this.clk, 0);
-            control.waitMicros(TM1637_PAUSE_TIME_US);
-            pins.digitalWritePin(this.dio, 0);
-            this._ON = 8;
-            this.buf = pins.createBuffer(this.count);
-            this.clear();
+            pins.digitalWritePin(this.cs, 1);
+            control.waitMicros(MAX7219_PAUSE_TIME_US);
+			
+		    // initialize MAX7219s
+		    this._registerAll(_SHUTDOWN, 0); // turn off
+		    this._registerAll(_DISPLAYTEST, 0); // test mode off
+		    this._registerAll(_DECODEMODE, 0); // decode mode off
+		    this._registerAll(_SCANLIMIT, 7); // set scan limit to 7 (column 0-7)
+		    this._registerAll(_INTENSITY, 1); // set brightness to 1
+		    this._registerAll(_SHUTDOWN, 1); // turn on
+		    this.clearAll() // clear screen on all MAX7219s
+			
+            //this.buf = pins.createBuffer(this.numberModules * 8);
+            
         }
 
-        /**
-         * Start 
-         */
-        _start() {
-            pins.digitalWritePin(this.dio, 0);
-            pins.digitalWritePin(this.clk, 0);
-            control.waitMicros(TM1637_PAUSE_TIME_US);
-        }
+	  /**
+	   * (internal function) write command and data to all MAX7219s
+	   */
+	  _registerAll(addressCode: number, data: number) {
+		if (this._reversed === true) displayIndex = this.numberModules-1 - displayIndex;
+		  
+		// set micro:bit SPI
+		pins.spiPins(this.din, this.miso, this.clk);
+		pins.spiFormat(8, 0);
+		pins.spiFrequency(1000000);
+		  
+		pins.digitalWritePin(this.cs, 0) // LOAD=LOW, start to receive commands
+		//control.waitMicros(MAX7219_PAUSE_TIME_US);
+		for (let i = 0; i < _matrixNum; i++) {
+		  // when a MAX7219 received a new command/data set
+		  // the previous one would be pushed to the next matrix along the chain via DOUT
+		  pins.spiWrite(addressCode) // command (8 bits)
+		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+		  pins.spiWrite(data) //data (8 bits)
+		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+		}
+		pins.digitalWritePin(this.cs, 1) // LOAD=HIGH, commands take effect
+		//control.waitMicros(MAX7219_PAUSE_TIME_US);
+	  }
+	
+	  /**
+	   * (internal function) write command and data to a specific MAX7219 (index 0=farthest on the chain)
+	   */
+	  _registerForOne(addressCode: number, data: number, displayIndex: number) {
+		if (this._reversed === true) displayIndex = this.numberModules-1 - displayIndex;
+		  
+		// set micro:bit SPI
+		pins.spiPins(this.din, this.miso, this.clk);
+		pins.spiFormat(8, 0);
+		pins.spiFrequency(1000000);
+		  
+		if (displayIndex <= _matrixNum - 1) {
+		  pins.digitalWritePin(this.cs, 0) // LOAD=LOW, start to receive commands
+		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+		  for (let i = 0; i < _matrixNum; i++) {
+			// when a MAX7219 received a new command/data set
+			// the previous one would be pushed to the next matrix along the chain via DOUT
+			if (i == displayIndex) { // send change to target
+			  pins.spiWrite(addressCode) // command (8 bits)
+			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+			  pins.spiWrite(data) //data (8 bits)
+			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+			} else { // do nothing to non-targets
+			  pins.spiWrite(_NOOP)
+			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+			  pins.spiWrite(0)
+			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+			}
+		  }
+		  pins.digitalWritePin(this.cs, 1) // LOAD=HIGH, commands take effect
+		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+		}
+	  }
 
-        /**
-         * Stop
-         */
-        _stop() {
-            pins.digitalWritePin(this.dio, 0);
-            pins.digitalWritePin(this.clk, 1);
-            control.waitMicros(TM1637_PAUSE_TIME_US);
-            pins.digitalWritePin(this.dio, 1);
-        }
+		
+	  /**
+	   * Reverse order options for a MAX7219 modules chain
+	   */
+	  //% block="Reverse printing order $reversed"
+	  //% block.loc.de="Reihenfolge der Displays umkehren $reversed"
+	  //% jsdoc.loc.de="Konfiguriert die umgekehrte Reihenfolge, wenn mehrere Displays (MAX7219-Module) in einer Kette aneinandergehängt wurden."
+	  //% group="1. Setup" blockExternalInputs=true advanced=true
+	  reverseOrder(reversed: boolean) {	    
+	    this._reversed = reversed
+	  }
+		
 
-        /**
-         * send command1
-         */
-        _write_data_cmd() {
-            this._start();
-            this._write_byte(TM1637_CMD1);
-            this._stop();
-        }
+	  /**
+	   * Set brightness level of LEDs on all MAX7219s
+	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
+	   */
+	  //% block="Set all brightness level $level"
+	  //% block.loc.de="Helligkeit aller Displays auf $level setzen"
+      //% weight=70 blockGap=8
+	  //% jsdoc.loc.de="Stellt die LED-Helligkeit aller Displays ein (0 = dunkel, 15 = sehr hell). ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
+	  //% level.min=0 level.max=15 level.defl=1 group="3. Basic light control"
+	  brightnessAll(level: number) {
+		this._registerAll(_INTENSITY, level)
+	  }
+	
+	  /**
+	   * Set brightness level of LEDs on a specific MAX7219s (index 0=farthest on the chain).
+	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
+	   */
+	  //% block="Set brightness level $level on matrix index = $index"
+	  //% block.loc.de="Helligkeit $level auf dem Display mit Index $index setzen"
+      //% weight=70 blockGap=8
+	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am weitesten in der Kette entfernt. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
+	  //% level.min=0 level.max=15 level.defl=1 index.min=0 group="3. Basic light control" advanced=true
+	  brightnessForOne(level: number, index: number) {
+		this._registerForOne(_INTENSITY, level, index)
+	  }
 
-        /**
-         * send command3
-         */
-        _write_dsp_ctrl() {
-            this._start();
-            this._write_byte(TM1637_CMD3 | this._ON | this.brightness);
-            this._stop();
-        }
 
-        /**
-         * send a byte to 2-wire interface
-         */
-        _write_byte(b: number) {
-            for (let i = 0; i < 8; i++) {
-                pins.digitalWritePin(this.dio, (b >> i) & 1);
-                pins.digitalWritePin(this.clk, 1);
-                control.waitMicros(TM1637_PAUSE_TIME_US);
-                pins.digitalWritePin(this.clk, 0);
-                control.waitMicros(TM1637_PAUSE_TIME_US);
-            }
-            pins.digitalWritePin(this.clk, 1);
-            control.waitMicros(TM1637_PAUSE_TIME_US);
-            pins.digitalWritePin(this.clk, 0);
-            control.waitMicros(TM1637_PAUSE_TIME_US);
-        }
-
-        /**
-         * set TM1637 intensity, range is [0-8], 0 is off.
-         * @param val the brightness of the TM1637, eg: 7
-	 */
-        //% blockId="TM1637_set_intensity" block="%tm|set intensity to %val"
-        //% jsdoc.loc.de="Stellt die Helligkeit des Displays ein 0..7 (-1 = aus, 0 = dunkel, 7 = hell)."
-        //% jsdoc.loc.en="Sets the display brightness (-1 = off, 7 = bright)."
-        //% block.loc.de="%tm|Setze die Helligkeit auf %val"
-        //% block.loc.en="%tm|set intensity to %val"
-        //% val.loc.de="Die Helligkeit des Displays TM1637."
-        //% val.loc.en="the brightness of the TM1637, eg: 7"
-        //% weight=70 blockGap=8
-        //% parts="TM1637" val.min=-1 val.max=7 val.dflt=7
-        intensity(val: number = 7) {
-            if (val < 0) {
-                // this.off();
-				this.clear();
-                return;
-            }
-            if (val > 7) val = 7;
-            this._ON = 8;
-            this.brightness = val;
-            this._write_data_cmd();
-            this._write_dsp_ctrl();
-        }
-
-        /**
-         * set data to TM1637, with given bit
-         */
-        _dat(bit: number, dat: number) {
-            this._write_data_cmd();
-            this._start();
-            this._write_byte(TM1637_CMD2 | (bit % this.count))
-            this._write_byte(dat);
-            this._stop();
-            this._write_dsp_ctrl();
-        }
+			
+	  /**
+	   * Turn on all LEDs on all MAX7219s
+	   */
+	  //% block="Fill all LEDs"
+	  //% block.loc.de="Alle LEDs einschalten"
+	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs ein."
+	  //% group="3. Basic light control"
+	  fillAll() {
+	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 255)
+	  }
+	
+	  /**
+	   * Turn on LEDs on a specific MAX7219
+	   */
+	  //% block="Fill LEDs on matrix index = $index"
+	  //% block.loc.de="Alle LEDs auf dem Display mit Index $index einschalten"
+	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
+	  //% index.min=0 group="3. Basic light control" advanced=true
+	  fillForOne(index: number) {
+	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 255, index)
+	  }
+	
+	  /**
+	   * Turn off LEDs on all MAX7219s
+	   */
+	  //% block="Clear all LEDs"
+	  //% block.loc.de="Alle LEDs löschen"
+	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs aus."
+	  //% group="3. Basic light control"
+	  clearAll() {
+	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 0)
+	  }
+	
+	  /**
+	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
+	   */
+	  //% block="Clear LEDs on matrix index = $index"
+	  //% block.loc.de="LEDs auf dem Display mit Index $index löschen"
+	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
+	  //% index.min=0 group="3. Basic light control" advanced=true
+	  clearForOne(index: number) {
+	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 0, index)
+	  }
+	
+	  /**
+	   * Turn on LEDs randomly on all MAX7219s
+	   */
+	  //% block="Randomize all LEDs"
+	  //% block.loc.de="LEDs auf allen Displays zufällig einschalten"
+	  //% jsdoc.loc.de="Schaltet auf allen Displays zufällig verteilte LEDs ein."
+	  //% group="3. Basic light control"
+	  randomizeAll() {
+	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, Math.randomRange(0, 255))
+	  }
+	
+	  /**
+	   * Turn on LEDs randomly on a specific MAX7219 (index 0=farthest on the chain)
+	   */
+	  //% block="Randomize LEDs on matrix index = $index"
+	  //% block.loc.de="LEDs zufällig auf dem Display mit Index $index einschalten"
+	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
+	  //% index.min=0 group="3. Basic light control" advanced=true
+	  randomizeForOne(index: number) {
+	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, Math.randomRange(0, 255), index)
+	  }
+	
 
 		/**
-		* Send 'Error' to the TM1637, or at least as many digits as possible.
+		* Send 'Error' to the MAX7219, or at least as many digits as possible.
 		*/
 		_errorHandling() {			
 			let ErrorMask = [0b1111001, 0b1010000, 0b1010000, 0b1011100, 0b1010000];
 			let counttmp = 0
 			for (let i = 0; i < Math.min(this.count,5); i++) {
-				this._dat(i, ErrorMask[i])
+				this._registerAll(i, ErrorMask[i])
 				counttmp++
 			}
 			for (let i = counttmp; i < this.count; i++) {
-				this._dat(i, 0)
+				this._registerAll(i, 0)
 			}
 		}
         
@@ -175,11 +272,12 @@ namespace TM1637 {
          * @param e Segment e (left bottom)
          * @param f Segment f (left top)
          * @param g Segment g (middle)
-	 	 * @param pos Digit at display of TM1637, eg: 0
+	 	 * @param pos Digit at display of MAX7219, eg: 0
+	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="TM1637_segmentsAt" block="$this(tm)|segments a %a b %b c %c d %d e %e f %f g %g|at %pos"
-        //% block.loc.de="$this(tm)|Segmente:| a %a b %b c %c d %d e %e f %f g %g|an der Stelle %pos einschalten."
-        //% block.loc.en="$this(tm)|segments:| a %a b %b c %c d %d e %e f %f g %g|at %pos"
+        //% blockId="MAX7219_7Seg_segmentsAt" block="$this(tm)|segments a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
+        //% block.loc.de="$this(tm)|Einschalten der Segmente:| a %a b %b c %c d %d e %e f %f g %g|an der Stelle %pos|des Displays %displayIndex"
+        //% block.loc.en="$this(tm)|segments:| a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
         //% a.loc.de="Segment a (oben)"
         //% a.loc.en="Segment a (top)"
         //% b.loc.de="Segment b (rechts oben)"
@@ -194,28 +292,31 @@ namespace TM1637 {
         //% f.loc.en="Segment f (left top)"
         //% g.loc.de="Segment g (Mitte)"
         //% g.loc.en="Segment g (middle)"
-        //% pos.loc.de="Stelle im Display des TM1637, z.B. 0 (ganz links)"
-        //% pos.loc.en="Digit at display of TM1637, e.g. 0 (most left)"
+        //% pos.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
+        //% pos.loc.en="Digit at display of MAX7219, e.g. 0 (most left)"
+        //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
+        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
         //% inlineInputMode=external
         //% weight=90 blockGap=8 advanced=true
-        //% parts="TM1637" pos.min=0 pos.max=3 pos.dflt=0
-        segmentsAt(a: boolean, b: boolean, c: boolean, d: boolean, e: boolean, f: boolean, g: boolean, pos: number = 0) {
+        //% parts="MAX7219_7Seg" pos.min=0 pos.max=3 pos.dflt=0 display.min=0 display.dflt=0
+        segmentsAt(a: boolean, b: boolean, c: boolean, d: boolean, e: boolean, f: boolean, g: boolean, pos: number = 0, displayIndex: number = 0) {
             let mask = 0
-            if (a) mask |= 1 << 0
-            if (b) mask |= 1 << 1
-            if (c) mask |= 1 << 2
+            if (a) mask |= 1 << 6
+            if (b) mask |= 1 << 5
+            if (c) mask |= 1 << 4
             if (d) mask |= 1 << 3
-            if (e) mask |= 1 << 4
-            if (f) mask |= 1 << 5
-            if (g) mask |= 1 << 6
+            if (e) mask |= 1 << 2
+            if (f) mask |= 1 << 1
+            if (g) mask |= 1 << 0
             //if (dp) mask |= 1 << 7			
             this.buf[pos % this.count] = mask & 0xFF
-            this._dat(pos, mask & 0xFF)
+            this._registerForOne(pos+1, mask & 0xFF, displayIndex) //+1 because the register address for digit 0 is 1, for digit 7 is 8
         }
 		
 
         /**
-         * Light indicated segments (bitmask) at given position.
+         * Light indicated segments (bitmask) at given position. 
+		 * The Segments are defined using  a bitmask.
          *
 		 * Bedeutung der Segmente:
 		 * a = oben 
@@ -227,34 +328,37 @@ namespace TM1637 {
 		 * g = Mitte 
 		 * 
          * | Segment bits (MSB -> LSB): 
-         * bit6=g, bit5=f, bit4=e, bit3=d, bit2=c, bit1=b, bit0=a
+         * bit6=a, bit5=b, bit4=c, bit3=d, bit2=e, bit1=f, bit0=g
          *
          * Example:
          * "8" (all segments a..g): 0b1111111
-         * "4" (b,c,f,g):           0b1100110
-         * @param segmentsText Segment-bitmask (binary recommended), eg: "0b1110110"
+         * "4" (b,c,f,g):           0b0110011
+         * @param segmentsText Segment-bitmask (binary recommended), eg: "0b0111011"
          * @param pos Digit position (0..count-1), eg: 0
-	*/
-        //% blockId="TM1637_lightsegmentsat" block="$this(tm)|light segments (bits) %segmentsText|at %pos"
-        //% jsdoc.loc.de="Zeigt Segmente über eine Bitmaske an (für Fortgeschrittene), z.B. 0b01110110 für H oder 0b01100110 für 4."
+	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
+		*/
+        //% blockId="MAX7219_7Seg_lightsegmentsat" block="$this(tm)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
+        //% jsdoc.loc.de="Zeigt Segmente über eine Bitmaske an (für Fortgeschrittene), z.B. 0b00110111 für H oder 0b00110011 für 4."
         //% jsdoc.loc.en="Lights segments using a bitmask (advanced)."
-        //% block.loc.de="$this(tm)|Segmente (binär) %segmentsText|der Stelle %pos einschalten."
-        //% block.loc.en="$this(tm)|light segments (bits) %segmentsText|at %pos"
-        //% segmentsText.loc.de="Segment-BitMaske (empfohlen binär), z.B. 0b1111111 für 8 oder 0b1100110 für 4"
-        //% segmentsText.loc.en="Segment-bitmask (binary recommended), e.g. 0b1111111 for 8 or 0b1100110 for 4"
-        //% pos.loc.de="Stelle im Display des TM1637, z.B. 0 (ganz links)"
+        //% block.loc.de="$this(tm)|Einschalten der Segmente (binär) %segmentsText|der Stelle %pos|des Displays %displayIndex"
+        //% block.loc.en="$this(tm)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
+        //% segmentsText.loc.de="Segment-BitMaske (empfohlen binär), z.B. 0b1111111 für 8 oder 0b00110011 für 4"
+        //% segmentsText.loc.en="Segment-bitmask (binary recommended), e.g. 0b1111111 for 8 or 0b00110011 for 4"
+        //% pos.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
         //% pos.loc.en="Digit position (0..count-1)"
+        //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
+        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
         //% weight=80 blockGap=8 advanced=true
-		//% parts="TM1637" segmentsText.dflt="0b1110110" pos.min=0 pos.max=3 pos.dflt=0
+		//% parts="MAX7219_7Seg" segmentsText.dflt="0b0110111" pos.min=0 pos.max=3 pos.dflt=0
         //% segmentsText.shadow="text"
-        lightSegmentsAt(segmentsText: string = "0b1110110", pos: number = 0) {
+        lightSegmentsAt(segmentsText: string = "0b0110111", pos: number = 0, displayIndex: number = 0) {
             let segments = parseBinText(segmentsText)
 			if (segments == -1) {
 				this._errorHandling()
 				return;
 			}
             this.buf[pos % this.count] = segments & 0x7F
-            this._dat(pos, segments & 0x7F)
+            this._registerForOne(pos+1, segments & 0x7F, displayIndex) //+1 because the register address for digit 0 is 1, for digit 7 is 8
         }
 
 		
@@ -264,34 +368,37 @@ namespace TM1637 {
          * show a number in given position.
          * @param num Number to be shown, eg: 5
          * @param bit Digit position, eg: 0
-	*/
-        //% blockId="TM1637_showbit" block="%tm|show number %num |at %bit"
-        //% jsdoc.loc.de="Zeigt eine einzelne Ziffer an einer bestimmten Stelle."
-        //% jsdoc.loc.en="Shows a single digit at a given position."
-        //% block.loc.de="%tm|Setze die Ziffer %num |an die Stelle %bit"
-        //% block.loc.en="%tm|show number %num |at %bit"
+	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
+		*/
+        //% blockId="MAX7219_7Seg_showbit" block="%tm|show number %num |at %bit|at display %displayIndex"
+        //% jsdoc.loc.de="Zeigt eine einzelne Ziffer an einer bestimmten Stelle eines bestimmten Display-Moduls."
+        //% jsdoc.loc.en="Shows a single digit at a given position of a given display."
+        //% block.loc.de="%tm|Setze die Ziffer %num |an die Stelle %bit|des Displays %displayIndex"
+        //% block.loc.en="%tm|show number %num |at %bit|at display %displayIndex"
         //% num.loc.de="Ziffer, die angezeigt werden soll, z.B. 5"
         //% num.loc.en="Number to be shown, e.g. 5"
-        //% bit.loc.de="Stelle im Display des TM1637, z.B. 0 (ganz links)"
+        //% bit.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
         //% bit.loc.en="Digit position, e.g. 0 (most left)"
+        //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
+        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
         //% weight=60 blockGap=8
-        //% parts="TM1637" num.min=0 num.max=15 num.dflt=5 bit.min=0 bit.max=3
-        showbit(num: number = 5, bit: number = 0) {
+        //% parts="MAX7219_7Seg" num.min=0 num.max=15 num.dflt=5 bit.min=0
+        showbit(num: number = 5, bit: number = 0, displayIndex = 0) {
 			// bei num=-1 wird das Digit ausgeschaltet
 		    if (num < 0) {
 		        this.buf[bit % this.count] = 0
-		        this._dat(bit % this.count, 0)
+		        this._registerForOne((bit % this.count)+1, 0, displayIndex)
 		        return
 		    }
             this.buf[bit % this.count] = _SEGMENTS[num % 16]
-            this._dat(bit % this.count, _SEGMENTS[num % 16])
+            this._registerForOne((bit % this.count)+1, _SEGMENTS[num % 16], displayIndex) //+1 because the register address for digit 0 is 1, for digit 7 is 8
         }
 
         /**
           * show a number. 
           * @param num Number to be shown, eg: 281
-	*/
-        //% blockId="TM1637_shownumwithleadingzeros" block="%tm|show number %num with leading zeros"
+		*/
+        //% blockId="MAX7219_7Seg_shownumwithleadingzeros" block="%tm|show number %num with leading zeros"
         //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an, z.B. 28 als 0028."
         //% jsdoc.loc.en="Shows a number on the display."
         //% block.loc.de="%tm|Zeige die Zahl %num und fülle vorne mit Nullen auf."
@@ -299,24 +406,49 @@ namespace TM1637 {
         //% num.loc.de="Zahl, die angezeigt werden soll, z.B. 281"
         //% num.loc.en="Number to be shown, e.g. 281"
         //% weight=40 blockGap=8
-        //% parts="TM1637" num.min=-999 num.max=9999 num.dflt=281
+        //% parts="MAX7219_7Seg" num.min=-999999999999999 num.max=9999999999999999 num.dflt=281
         showNumberWithLeadingZeros(num: number) {
             if (num < 0) {
-                this._dat(0, 0x40) // '-'
+                this._registerForOne(0+1, 0x01,0) // '-' //+1 because the register address for digit 0 is 1, for digit 7 is 8
                 num = -num
             }
-            else
-                this.showbit(Math.idiv(num, 1000) % 10)
-            this.showbit(num % 10, 3)
-            this.showbit(Math.idiv(num, 10) % 10, 2)
-            this.showbit(Math.idiv(num, 100) % 10, 1)
+            else {
+                this.showbit(Math.idiv(num, 10**((this.numberModules * this.count) -1)) % 10, 0, 0)
+			}
+			
+			for (let i = ((this.numberModules * this.count)-1)-1; i >= 0; i--) {
+				this.showbit(Math.idiv(num, 10**i) % 10, this._getDigitIndex(i), this._getDisplayIndex(i) ) 
+			}							 
         }
+
+		/* 
+		* (internal) Helps to find the digit of a display by given digit of the decimal number.
+		* num is the digit position in the decimal number, counted from the right, starting at 0.
+		* Example: In the number 34567, the digit 7 has num = 0, and the digit 3 has num = 4.
+		* 
+		* num ist die Stelle der Dezimalzahl, von rechts an gezählt, mit 0 beginnend. 
+		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
+		*/
+		_getDigitIndex(num: number) {
+			return (this.count-1 - (num % this.count))
+		}
+		/* 
+		* (internal) Helps to find the display index by given digit of the decimal number.
+		* num is the digit position in the decimal number, counted from the right, starting at 0.
+		* Example: In the number 34567, the digit 7 has num = 0, and the digit 3 has num = 4.
+		* 
+		* num ist die Stelle der Dezimalzahl, von rechts an gezählt, mit 0 beginnend. 
+		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
+		*/
+		_getDisplayIndex(num: number) {
+			return this.numberModules-1 - Math.idiv(i,this.count)
+		}
 
         /**
           * show a number with max 4 digits. 
           * @param num is a number with max 4 digits, eg: 1284
 	*/
-        //% blockId="TM1637_shownum" block="%tm|show number %num"
+        //% blockId="MAX7219_7Seg_shownum" block="%tm|show number %num"
         //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an."
         //% jsdoc.loc.en="Shows a number on the display."
         //% block.loc.de="%tm|Zeige die Zahl %num"
@@ -324,7 +456,7 @@ namespace TM1637 {
         //% num.loc.de="Eine Zahl mit max. 4 Stellen, z.B. 1284"
         //% num.loc.en="is a number with max 4 digits, eg: 1284"
         //% weight=50 blockGap=8
-        //% parts="TM1637" num.min=-999 num.max=9999 num.dflt=1284
+        //% parts="MAX7219_7Seg" num.min=-999999999999999 num.max=9999999999999999 num.dflt=1273
         showNumber(num: number) {
 			//this.clear()			
 			let sign = 0
@@ -332,6 +464,15 @@ namespace TM1637 {
 				sign = -1
                 num = -num
             }
+			for (let i = 0; i < this.numberModules * this.count; i++) {
+				if (num >= 10**i) this.showbit(Math.idiv(num, 10**i) % 10, this._getDigitIndex(i), this._getDisplayIndex(i)); 
+				else this.showbit(-1, this._getDigitIndex(i), this._getDisplayIndex(i));
+			}
+			if (num == 0) this.showbit(0, this.count-1, this.numberModules-1)
+            if (sign < 0) {
+                this._registerForOne(this._getDigitIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))+1, 0x01, this._getDisplayIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))) // 0x01 = '-'   //+1 because the register address for digit 0 is 1, for digit 7 is 8
+            }
+			/*
 			for (let i = 0; i < this.count; i++) {
 				if (num >= 10**i) this.showbit(Math.idiv(num, 10**i) % 10, this.count-1-i); 
 				else this.showbit(-1, this.count-1-i);
@@ -340,13 +481,14 @@ namespace TM1637 {
             if (sign < 0) {
                 this._dat(3 - Math.min(3, Math.abs(num).toString().length), 0x40) // '-'
             }
+			*/
         }
 
         /**
           * show a hex number. 
           * @param numText a hex number, eg: 0xA7F
 	*/
-        //% blockId="TM1637_showhex" block="%tm|show hex number %numText"
+        //% blockId="MAX7219_7Seg_showhex" block="%tm|show hex number %numText"
         //% jsdoc.loc.de="Zeigt eine Zahl im Hex-Format (0–F) an."
         //% jsdoc.loc.en="Shows a number in hex (0–F)."
         //% block.loc.de="%tm|Zeige die Hexadezimalzahl %numText"
@@ -354,14 +496,19 @@ namespace TM1637 {
         //% numText.loc.de="Eine Hexadezimalzahl, z.B. 0xA7F"
         //% numText.loc.en="a hex number, eg: 0xA7F"
         //% weight=30 blockGap=8
-        //% parts="TM1637"
+        //% parts="MAX7219_7Seg"
 		//% numText.shadow="text"
         showHex(numText: string) {
-            let num = parseHexText(numText, this.count)
+            let num = parseHexText(numText, this.numberModules * this.count)
 			if (num == -1) {
 				this._errorHandling()
 				return;
 			}
+			for (let i = this.numberModules * this.count -1; i >= 0; i--) {
+				if (num > 16**i) this.showbit(Math.idiv(num, 0x1000) % 16, this._getDigitIndex(i), this._getDisplayIndex(i));
+				else this.showbit(-1, this._getDigitIndex(i), this._getDisplayIndex(i));
+			}
+			/*
 			if (num > 0xFFF) this.showbit(Math.idiv(num, 0x1000) % 16, 0); 
 			else this.showbit(-1,0);
 			if (num >  0xFF) this.showbit(Math.idiv(num, 0x100) % 16, 1); 
@@ -370,77 +517,79 @@ namespace TM1637 {
 			else this.showbit(-1,2);
 			if (num >=  0x0) this.showbit(num % 16, 3); 
 			else this.showbit(-1,3);
+			*/
         }
 
         /**
          * show or hide dot point. 
-         * @param bit is the position, eg: 1
+         * @param bit is the position on a display, eg: 1
+         * @param displayIndex is the display index, eg: 0
          * @param show is show/hide dp, eg: true
 	*/
-        //% blockId="TM1637_showDP" block="%tm|DotPoint at %bit|show %show"
+        //% blockId="MAX7219_7Seg_showDP" block="%tm|DotPoint at digit %bit|of Display %displayIndex|show %show"
         //% jsdoc.loc.de="Schaltet den Dezimalpunkt (oder Doppelpunkt) ein oder aus."
         //% jsdoc.loc.en="Shows or hides the dot point."
-        //% block.loc.de="%tm|Dezimalpunkt rechts der Stelle %bit| setzen %show"
-        //% block.loc.en="%tm|DotPoint at %bit|show %show"
+        //% block.loc.de="%tm|Dezimalpunkt rechts der Stelle %bit|des Displays %displayIndex| setzen %show"
+        //% block.loc.en="%tm|DotPoint at %bit|of Display %displayIndex|show %show"
         //% bit.loc.de="Stelle im Display, von der rechts der Punkt angezeigt werden soll, z.B. 1"
         //% bit.loc.en="is the position, eg: 1"
+        //% displayIndex.loc.de="Das Display, auf dem der Punkt angezeigt werden soll, z.B. 0"
+        //% displayIndex.loc.en="The Display the point has to be shown on, eg: 0"
         //% show.loc.de="EIN = Wahr, AUS = Falsch"
         //% show.loc.en="is show/hide dp, eg: true"
         //% weight=20 blockGap=8
-        //% parts="TM1637"
-        showDP(bit: number = 1, show: boolean = true) {
+        //% parts="MAX7219_7Seg"
+        showDP(bit: number = 1, displayIndex: number = 0, show: boolean = true) {
             bit = bit % this.count
-            if (show) this._dat(bit, this.buf[bit] | 0x80)
-            else this._dat(bit, this.buf[bit] & 0x7F)
+            if (show) this._registerForOne(bit+1, this.buf[bit] | 0x80, displayIndex)
+            else this._registerForOne(bit+1, this.buf[bit] & 0x7F, displayIndex)
         }
 
         /**
          * clear LED. 
          */
-        //% blockId="TM1637_clear" block="clear all digits of %tm"
+        //% blockId="MAX7219_7Seg_clear" block="clear all digits of %tm"
         //% jsdoc.loc.de="Löscht die Anzeige (alle Segmente aus)."
         //% jsdoc.loc.en="Clears the display (all segments off)."
         //% block.loc.de="Lösche alle Stellen des Displays %tm"
         //% block.loc.en="clear all digits of %tm"
         //% weight=10 blockGap=8
-        //% parts="TM1637"
+        //% parts="MAX7219_7Seg"
         clear() {
-            for (let i = 0; i < this.count; i++) {
-                this._dat(i, 0)
-                this.buf[i] = 0
-            }
+			for (let m = 0; m < this.numberModules; m++) {
+	            for (let i = 0; i < this.count; i++) {
+	                this._registerForOne(i+1, 0, m)
+	                this.buf[m * this.count + i] = 0
+	            }
+			}
         }
 
         /**
-         * turn on LED. 
+         * Turn on all display modules. 
          */
-        //% blockId="TM1637_on" block="turn on %tm"
+        //% blockId="MAX7219_7Seg_on" block="turn on %tm"
         //% jsdoc.loc.de="Schaltet das Display ein."
         //% jsdoc.loc.en="Turns the display on."
         //% block.loc.de="Schalte das Display %tm ein."
         //% block.loc.en="turn on %tm"
         //% weight=90 blockGap=8
-        //% parts="TM1637"
+        //% parts="MAX7219_7Seg"
         on() {
-            this._ON = 8;
-            this._write_data_cmd();
-            this._write_dsp_ctrl();
+            this._registerAll(_SHUTDOWN,1);
         }
 
         /**
          * turn off LED. 
          */
-        //% blockId="TM1637_off" block="turn off %tm"
+        //% blockId="MAX7219_7Seg_off" block="turn off %tm"
         //% jsdoc.loc.de="Schaltet das Display aus."
         //% jsdoc.loc.en="Turns the display off."
         //% block.loc.de="Schalte das Display %tm aus."
         //% block.loc.en="turn off %tm"
         //% weight=80 blockGap=8
-        //% parts="TM1637"
+        //% parts="MAX7219_7Seg"
         off() {
-            this._ON = 0;
-            this._write_data_cmd();
-            this._write_dsp_ctrl();			
+            this._registerAll(_SHUTDOWN,0);			
         }      
 		
     }
@@ -582,30 +731,36 @@ namespace TM1637 {
 
 	
     /**
-     * create a Digit Display (TM1637) object.
-     * @param clk the CLK pin for TM1637, eg: DigitalPin.P0
-     * @param dio the DIO pin for TM1637, eg: DigitalPin.P1
-     * @param intensity the brightness of the LED, eg: 7
-     * @param count the count of the LED, eg: 4
+     * Create a Digit Display (MAX7219) object.
+	 * Enter the number of display-modules at a chain and the Digital Pins you use for communication.
+	 * The MISO Pin is not used for this purpose.
+     * @param numberModules the count of modules at a chain, eg: 1
+     * @param cs the CS pin for MAX7219, eg: DigitalPin.P16
+     * @param din the DIN pin for MAX7219, eg: DigitalPin.P17
+     * @param miso the MISO pin for MAX7219, eg: DigitalPin.P14
+     * @param clk the CLK pin for MAX7219, eg: DigitalPin.P15
      */
     //% weight=200 blockGap=8
-    //% blockId="TM1637_create" block="CLK %clk|DIO %dio|brightness %intensity|digit count %count"
-    //% block.loc.de="CLK %clk|DIO %dio|Helligkeit %intensity|Anzahl Stellen %count"
-    //% block.loc.en="CLK %clk|DIO %dio|brightness %intensity|digit count %count"
+    //% blockId="MAX7219_7Seg_create" block="Number of modules %numberModules|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+    //% block.loc.de="Anzahl der Displays %numberModules|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+    //% block.loc.en="Number of modules %numberModules|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+	//% jsdoc.loc.de="Richtet die MAX7219-Module ein, setzt sie zurück und initialisiert sie neu. Gib die Anzahl der Module an, die in deiner Kette aneinandergehängt wurden. Der MISO-Pin wird nicht benutzt - er sollte am Calliope frei bleiben."
     //% clk.loc.de="Pin für das Clock Signal (CLK)"
     //% clk.loc.en="Pin used for Clock Signal (CLK)"
-    //% dio.loc.de="Pin für das Daten Signal (DIO)"
-    //% dio.loc.en="Pin used for Data Signal (DIO)"
-    //% intensity.loc.de="Helligkeit des Displays (0..7)"
-    //% intensity.loc.en="Intensity of display (0..7)"
-    //% count.loc.de="Anzahl der Stellen des Displays, z.B. 4"
-    //% count.loc.en="Count of digits of display, e.g. 4"
-    //% inlineInputMode=inline count.min=1 count.max=4 count.dflt=4 intensity.min=0 intensity.max=7 intensity.dflt=7
-    //% blockSetVariable=tm
-    export function create(clk: DigitalPin, dio: DigitalPin, intensity: number, count: number = 4): TM1637LEDs {
-        let tm = new TM1637LEDs(clk, dio, intensity, count);
-        tm.init();
-        return tm;
+    //% din.loc.de="Pin für das Daten Signal (DIN)"
+    //% din.loc.en="Pin used for Data Signal (DIN)"
+    //% cs.loc.de="Pin für das Steuerungssignal (CS)"
+    //% cs.loc.en="Pin used for Control Signal (CS)"
+    //% miso.loc.de="Pin ungenutzt (MISO)"
+    //% miso.loc.en="Pin not used (MISO)"
+    //% numberModules.loc.de="Anzahl der Displays, z.B. 1"
+    //% numberModules.loc.en="Count of display, eg: 1"
+    //% inlineInputMode=inline count.min=1 count.dflt=1
+    //% blockSetVariable=max
+    export function create(numberModules: number = 1, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
+        let display = new MAX7219_7Seg_obj(numberModules, cs, din, miso, clk);
+        display.init();
+        return display;
 	}
 
     
