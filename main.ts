@@ -25,6 +25,47 @@ namespace MAX7219_7Seg {
   //01110111 00011111 01001110 00111101 01001111 01000111
   let _SEGMENTS = [0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x7B, 0x77, 0x1F, 0x4E, 0x3D, 0x4F, 0x47];
 
+	
+    /**
+     * Create a Digit Display (MAX7219) object.
+	 * Enter the number of display-modules at a chain and the Digital Pins you use for communication.
+	 * The MISO Pin is not used for this purpose.
+	 * 
+     * @param numberModules the count of modules at a chain, eg: 1
+     * @param countDigits the count of digits at a display, eg: 8
+     * @param cs the CS pin for MAX7219, eg: DigitalPin.C16
+     * @param din the DIN pin for MAX7219, eg: DigitalPin.C17
+     * @param miso the MISO pin for MAX7219, eg: DigitalPin.C14
+     * @param clk the CLK pin for MAX7219, eg: DigitalPin.C15
+     */
+    //% blockId="MAX7219_7Seg_create" block="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+    //% block.loc.de="Anzahl der Displays %numberModules|Anzahl der Stellen pro Modul %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+    //% block.loc.en="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+	//% jsdoc.loc.de="Richtet die MAX7219-Module ein, setzt sie zurück und initialisiert sie neu. Gib die Anzahl der Module an, die in deiner Kette aneinandergehängt wurden, und wieviele Stellen eine Anzeige hat. Der MISO-Pin wird nicht benutzt - er sollte am Calliope frei bleiben."
+    //% clk.loc.de="Pin für das Clock Signal (CLK)"
+    //% clk.loc.en="Pin used for Clock Signal (CLK)"
+    //% din.loc.de="Pin für das Daten Signal (DIN)"
+    //% din.loc.en="Pin used for Data Signal (DIN)"
+    //% cs.loc.de="Pin für das Steuerungssignal (CS)"
+    //% cs.loc.en="Pin used for Control Signal (CS)"
+    //% miso.loc.de="Pin ungenutzt (MISO)"
+    //% miso.loc.en="Pin not used (MISO)"
+    //% numberModules.loc.de="Anzahl der Displays, z.B. 1"
+    //% numberModules.loc.en="Count of display, eg: 1"
+    //% countDigits.loc.de="Anzahl der Stellen pro Display, z.B. 8"
+    //% countDigits.loc.en="Count of digits per display, eg: 8"
+	//% countDigits.min=1 countDigits.dflt=8 numberModules.min=1 numberModules.dflt=1
+	//% blockExternalInputs=true
+	//% group="1. Setup"
+	//% group.loc.de="1. Setup"
+    //% weight=100 blockGap=8
+    //% blockSetVariable=display
+    export function create(numberModules: number = 1, countDigits: number = 8, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
+        let display = new MAX7219_7Seg_obj(numberModules, countDigits, cs, din, miso, clk);
+        display.init();
+        return display;
+	}
+
     /**
      * MAX7219 LED display
      */
@@ -163,11 +204,79 @@ namespace MAX7219_7Seg {
 	  //% blockExternalInputs=true
 	  //% group="1. Setup" advanced=true
 	  //% group.loc.de="1. Setup"
-	  //% weight=95
+	  //% weight=95 blockGap=15
       //% parts="MAX7219_7Seg" reversed.dflt=true
 	  reverseOrder(reversed: boolean) {	    
 	    this._reversed = reversed
 	  }
+		
+
+        /**
+         * Turn on all display modules. 
+         */
+        //% blockId="MAX7219_7Seg_on" block="%display|turn on all displays"
+        //% jsdoc.loc.de="Schaltet alle Displays einer Kette ein."
+        //% jsdoc.loc.en="Turns the display on."
+        //% block.loc.de="%display|Schalte alle Displays ein."
+        //% block.loc.en="%display|turn on all displays"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
+        //% weight=90 blockGap=8
+        //% parts="MAX7219_7Seg"
+        on() {
+            this._registerAll(_SHUTDOWN,1);
+        }
+
+        /**
+         * Turn off the module. The registers can be accessed in off mode, but they take effect when the module is turned on again.
+         */
+        //% blockId="MAX7219_7Seg_off" block="%display|turn off all displays"
+        //% jsdoc.loc.de="Schaltet alle Displays einer Kette aus. Display kann im ausgeschalteten Zustand beschrieben werden, aber erst nach dem Wiedereinschalten werden die Zahlen sichtbar."
+        //% jsdoc.loc.en="Turns the display off. The registers can be accessed in off mode, but they take effect when the module is turned on again."
+        //% block.loc.de="%display|Schalte alle Displays aus."
+        //% block.loc.en="%display|turn off all displays"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
+        //% weight=80 blockGap=8
+        //% parts="MAX7219_7Seg"
+        off() {
+            this._registerAll(_SHUTDOWN,0);			
+        }      
+		
+    
+	
+
+        /**
+         * Turn on a single module in a chain of modules. 
+         */
+        //% blockId="MAX7219_7Seg_onForOne" block="%display|turn on display %displayIndex"
+        //% jsdoc.loc.de="Schaltet ein Display einer Kette ein."
+        //% jsdoc.loc.en="Turns the display on."
+        //% block.loc.de="%display|Schalte das Displays %displayIndex ein."
+        //% block.loc.en="%display|turn on display %displayIndex"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
+        //% weight=76 blockGap=8
+        //% parts="MAX7219_7Seg"
+        onForOne(displayIndex: number = 0) {
+            this._registerForOne(_SHUTDOWN,1,displayIndex);
+        }
+
+        /**
+         * Turn off a single module in a chain of modules. 
+         */
+        //% blockId="MAX7219_7Seg_offForOne" block="%display|turn off display %displayIndex"
+        //% jsdoc.loc.de="Schaltet ein einzelnes Display einer Kette aus."
+        //% jsdoc.loc.en="Turns off a single display of a chain."
+        //% block.loc.de="%display|Schalte das Display %displayIndex aus."
+        //% block.loc.en="%display|turn off display %displayIndex"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
+        //% weight=73 blockGap=8
+        //% parts="MAX7219_7Seg"
+        offForOne(displayIndex: number = 0) {
+            this._registerForOne(_SHUTDOWN,0,displayIndex);			
+        }      
 		
 
 	  /**
@@ -205,94 +314,6 @@ namespace MAX7219_7Seg {
 	  }
 
 
-			
-	  /**
-	   * Turn on all LEDs on all MAX7219s
-	   */
-	  //% block="%display|Fill all LEDs"
-	  //% block.loc.de="%display|Alle LEDs einschalten"
-	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs ein."
-	  //% group="4. Control all digits of all displays"
-	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
-	  //% weight=30 blockGap=8
-      //% parts="MAX7219_7Seg"
-	  fillAll() {
-	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 255)
-	  }
-	
-	  /**
-	   * Turn on LEDs on a specific MAX7219
-	   */
-	  //% block="%display|Fill LEDs on matrix index %index"
-	  //% block.loc.de="%display|Alle LEDs auf dem Display mit Index %index einschalten"
-	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
-	  //% index.min=0
-	  //% group="4. Control all digits of a single displays" advanced=true
-	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
-	  //% weight=30 blockGap=8
-      //% parts="MAX7219_7Seg"
-	  fillForOne(index: number) {
-	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 255, index)
-	  }
-	
-	  /**
-	   * Turn off LEDs on all MAX7219s
-	   */
-	  //% block="%display|Clear all LEDs"
-	  //% block.loc.de="%display|Alle LEDs löschen"
-	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs aus."
-	  //% group="4. Control all digits of all displays"
-	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
-      //% weight=20 blockGap=8
-      //% parts="MAX7219_7Seg"
-	  clearAll() {
-	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 0)
-	  }
-	
-	  /**
-	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
-	   */
-	  //% block="%display|Clear LEDs on matrix index %index"
-	  //% block.loc.de="%display|Lösche alle LEDs auf dem Display %index"
-	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
-	  //% index.min=0 
-	  //% group="4. Control all digits of a single displays" advanced=true
-	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
-	  //% weight=20 blockGap=8
-      //% parts="MAX7219_7Seg"
-	  clearForOne(index: number) {
-	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 0, index)
-	  }
-	
-	  /**
-	   * Turn on LEDs randomly on all MAX7219s
-	   */
-	  //% block="%display|Randomize all LEDs"
-	  //% block.loc.de="%display|LEDs auf allen Displays zufällig einschalten"
-	  //% jsdoc.loc.de="Schaltet auf allen Displays zufällig verteilte LEDs ein."
-	  //% group="4. Control all digits of all displays"
-	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
-	  //% weight=10 blockGap=8
-      //% parts="MAX7219_7Seg"
-	  randomizeAll() {
-	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, Math.randomRange(0, 255))
-	  }
-	
-	  /**
-	   * Turn on LEDs randomly on a specific MAX7219 (index 0=farthest on the chain)
-	   */
-	  //% block="%display|Randomize LEDs on matrix index %index"
-	  //% block.loc.de="%display|LEDs zufällig auf dem Display mit Index %index einschalten"
-	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
-	  //% index.min=0 
-	  //% group="4. Control all digits of a single displays" advanced=true
-	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
-	  //% weight=10 blockGap=8
-      //% parts="MAX7219_7Seg"
-	  randomizeForOne(index: number) {
-	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, Math.randomRange(0, 255), index)
-	  }
-	
 
 		/**
 		* Send 'Error' to the MAX7219, or at least as many digits as possible.
@@ -309,6 +330,321 @@ namespace MAX7219_7Seg {
 			}
 		}
         
+        /**
+          * show a number. 
+          * @param num Number to be shown, eg: 281
+		*/
+        //% blockId="MAX7219_7Seg_shownumwithleadingzeros" block="%display|show number %num with leading zeros"
+        //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an, z.B. 28 als 0028."
+        //% jsdoc.loc.en="Shows a number on the display."
+        //% block.loc.de="%display|Zeige die Zahl %num und fülle vorne mit Nullen auf."
+        //% block.loc.en="%display|show number %num with leading zeros"
+        //% num.loc.de="Zahl, die angezeigt werden soll, z.B. 281"
+        //% num.loc.en="Number to be shown, e.g. 281"
+		//% group="2. Numbers"
+		//% group.loc.de="2. Zahlen"
+        //% weight=80 blockGap=8
+        //% parts="MAX7219_7Seg" num.dflt=281
+		showNumberWithLeadingZeros(num: number) {
+		    const totalDigits = this.numberModules * this.count
+		    let sign = 0
+		
+		    if (num < 0) {
+		        sign = -1
+		        num = -num
+		    }
+		
+		    let str = num.toString()
+
+			// auf Komma (Dezimalpunkt) überprüfen
+			let indexDP = str.indexOf(".")
+			let posDP = -1
+			if (indexDP >= 0) {
+				posDP = str.length - indexDP -1 // Position of DP counted from most right
+				str = str.replace(".", "")
+			}
+		
+		    // falls mehr Ziffern als Stellen → nur rechte totalDigits Stellen behalten
+		    if (str.length > totalDigits) {
+		        str = str.substr(str.length - totalDigits)
+		    }
+		
+		    // auf genau totalDigits Stellen mit Nullen links auffüllen
+		    let strMitNullen = ""
+		    for (let i = 0; i < totalDigits - str.length; i++) {
+		        strMitNullen += "0"
+		    }
+		    strMitNullen += str
+		
+		    // alle Stellen schreiben, rechtsbündig
+		    // globale Position 0 = rechteste Stelle
+		    for (let pos = 0; pos < totalDigits; pos++) {
+		        // von rechts nach links durch padded laufen
+		        const ch = strMitNullen.charAt(strMitNullen.length - 1 - pos)
+		        let digit = parseInt(ch)
+		        if (isNaN(digit)) digit = 0
+		
+		        this.showbit(
+		            digit,
+		            this._getDigitIndex(pos),
+		            this._getDisplayIndex(pos)
+		        )
+		    }
+		
+		    // Minuszeichen, falls negativ: ganz links
+		    if (sign < 0) {
+		        const minusPos = totalDigits - 1
+		        this._registerForOne(
+		            this._getDigitIndex(minusPos) + 1,
+		            0x01,                                  // '-' Muster
+		            this._getDisplayIndex(minusPos)
+		        )
+		    }
+
+			// Dezimalpunkt, falls vorhanden:
+			if (posDP >= 0) { this.showDP(this._getDigitIndex(posDP), this._getDisplayIndex(posDP), true) }
+		}
+
+
+        /**
+          * show a number with max 4 digits. 
+          * @param num is a number with max 4 digits, eg: 1284
+		*/
+        //% blockId="MAX7219_7Seg_shownum" block="%display|show number %num"
+        //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an."
+        //% jsdoc.loc.en="Shows a number on the display."
+        //% block.loc.de="%display|Zeige die Zahl %num"
+        //% block.loc.en="%display|show number %num"
+        //% num.loc.de="Eine Zahl mit max. 4 Stellen, z.B. 1284"
+        //% num.loc.en="is a number with max 4 digits, eg: 1284"
+		//% group="2. Numbers"
+		//% group.loc.de="2. Zahlen"
+        //% weight=90 blockGap=8
+        //% parts="MAX7219_7Seg" num.dflt=1273
+		showNumber(num: number) {
+			if (isNaN(num) || num === null || num === undefined) {
+				this._errorHandling();
+				return;
+			}
+			
+		    const totalDigits = this.numberModules * this.count
+		    let sign = 0
+		
+		    if (num < 0) {
+		        sign = -1
+		        num = -num
+		    }
+		
+		    let str = num.toString()
+
+			// auf Komma (Dezimalpunkt) überprüfen
+			let indexDP = str.indexOf(".")
+			let posDP = -1
+			if (indexDP >= 0) {
+				posDP = str.length - indexDP -1 // Position of DP counted from most right
+				str = str.replace(".", "")
+			}
+		
+		    // falls mehr Ziffern als Stellen → nur rechte totalDigits Stellen behalten
+		    if (str.length > totalDigits) {
+		        str = str.substr(str.length - totalDigits)
+		    }
+		
+		    // zuerst alles löschen
+		    for (let pos = 0; pos < totalDigits; pos++) {
+		        this.showbit(
+		            -1,
+		            this._getDigitIndex(pos),
+		            this._getDisplayIndex(pos)
+		        )
+		    }
+		
+		    // Ziffern rechtsbündig eintragen
+		    for (let i = 0; i < str.length && i < totalDigits; i++) {
+		        const ch = str.charAt(str.length - 1 - i) // von rechts
+		        let digit = parseInt(ch)
+		        if (isNaN(digit)) digit = 0
+		
+		        this.showbit(
+		            digit,
+		            this._getDigitIndex(i),
+		            this._getDisplayIndex(i)
+		        )
+		    }
+		
+		
+		    // Minuszeichen bei Bedarf:
+		    if (sign < 0) {
+		        // Position direkt links der höchstwertigen angezeigten Ziffer,
+		        // falls möglich, sonst die höchstwertige überschreiben
+		        let msdPos = str.length - 1
+		        if (msdPos < 0) msdPos = 0
+		        let minusPos = msdPos + 1
+		        if (minusPos >= totalDigits) {
+		            minusPos = msdPos
+		        }
+		
+		        this._registerForOne(
+		            this._getDigitIndex(minusPos) + 1,
+		            0x01,                              // '-'
+		            this._getDisplayIndex(minusPos)
+		        )
+		    }
+
+			// Dezimalpunkt, falls vorhanden:
+			if (posDP >= 0) { this.showDP(this._getDigitIndex(posDP), this._getDisplayIndex(posDP), true) }
+		}
+
+		/* 
+		* (internal) Helps to find the digit of a display by given digit of the decimal number.
+		* num is the digit position in the decimal number, counted from the right, starting at 0.
+		* Example: In the number 34567, the digit 7 has num = 0, and the digit 3 has num = 4.
+		* 
+		* num ist die Stelle der Dezimalzahl, von rechts an gezählt, mit 0 beginnend. 
+		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
+		*/
+		_getDigitIndex(num: number) {
+			//return (num % this.count)
+			return (this.count-1 - (num % this.count))
+		}
+		/* 
+		* (internal) Helps to find the display index by given digit of the decimal number.
+		* num is the digit position in the decimal number, counted from the right, starting at 0.
+		* Example: In the number 34567, the digit 7 has num = 0, and the digit 3 has num = 4.
+		* 
+		* num ist die Stelle der Dezimalzahl, von rechts an gezählt, mit 0 beginnend. 
+		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
+		*/
+		_getDisplayIndex(num: number) {
+			return this.numberModules-1 - Math.idiv(num,this.count)
+		}
+
+
+        /**
+          * show a hex number. 
+          * @param numText a hex number, eg: 0xA7F
+		*/
+        //% blockId="MAX7219_7Seg_showhex" block="%display|show hex number %numText"
+        //% jsdoc.loc.de="Zeigt eine Zahl im Hex-Format (0–F) an, z.B. 0xA734E."
+        //% jsdoc.loc.en="Shows a number in hex (0–F), eg. 0xA734E."
+        //% block.loc.de="%display|Zeige die Hexadezimalzahl %numText"
+        //% block.loc.en="%display|show hex number %numText"
+        //% numText.loc.de="Eine Hexadezimalzahl, z.B. 0xA7F"
+        //% numText.loc.en="a hex number, eg: 0xA7F"
+		//% group="2. Numbers"
+		//% group.loc.de="2. Zahlen"
+        //% weight=70 blockGap=8
+        //% parts="MAX7219_7Seg"
+		//% numText.shadow="text"
+		showHex(numText: string) {
+		    const totalDigits = this.numberModules * this.count
+		
+		    // Eingabetext bereinigen (Leerzeichen, Tabs, _ entfernen)
+		    let str = _stripSeparators(numText)
+		    if (!str) {
+		        this._errorHandling()
+		        return
+		    }
+		
+		    // Keine Vorzeichen bei Hex zulassen
+		    if (str.charAt(0) == "-" || str.charAt(0) == "+") {
+		        this._errorHandling()
+		        return
+		    }
+		
+		    // 0x / 0X Prefix entfernen
+		    if (str.length >= 2 && (str.substr(0, 2) == "0x" || str.substr(0, 2) == "0X")) {
+		        str = str.substr(2)
+		    } else {
+				this._errorHandling();
+				return
+			}
+		
+		    // Nur gültige Hex-Zeichen erlauben
+		    if (!_isHexDigits(str)) {
+		        this._errorHandling()
+		        return
+		    }
+		
+		    // Nur so viele Stellen wie Displays vorhanden sind (von rechts)
+		    if (str.length > totalDigits) {
+		        str = str.substr(str.length - totalDigits)
+		    }
+		
+		    // Erst alles löschen
+		    for (let pos = 0; pos < totalDigits; pos++) {
+		        this.showbit(
+		            -1,
+		            this._getDigitIndex(pos),
+		            this._getDisplayIndex(pos)
+		        )
+		    }
+		
+		    // Hexstellen von rechts nach links anzeigen
+		    for (let pos = 0; pos < str.length; pos++) {
+		        const ch = str.charAt(str.length - 1 - pos)
+		        let digit = 0
+		        const code = ch.charCodeAt(0)
+		
+		        if (code >= 48 && code <= 57) {              // '0'..'9'
+		            digit = code - 48
+		        } else if (code >= 65 && code <= 70) {       // 'A'..'F'
+		            digit = code - 65 + 10
+		        } else if (code >= 97 && code <= 102) {      // 'a'..'f'
+		            digit = code - 97 + 10
+		        } else {
+		            this._errorHandling()
+		            return
+		        }
+		
+		        this.showbit(
+		            digit,
+		            this._getDigitIndex(pos),
+		            this._getDisplayIndex(pos)
+		        )
+		    }
+		}
+
+
+	  /**
+	   * Show a random number defined by minimum and maximum.
+	   * The minimum is -10^15 and the maximum is 10^15.
+	   * 
+	   * @param numMin smallest possible number, eg: -100
+	   * @param numMax largest possible number, eg: 100
+	   */
+	  //% block="%display|Show random number Min = %numMin Max = %numMax"
+	  //% block.loc.de="%display|Zeige Zufallszahl Min = %numMin Max = %numMax"
+	  //% jsdoc.loc.de="Zeigt eine Zufallszahl von Minimum bis Maximum."
+	  //% numMin.min=-100000000000000 numMin.max=100000000000000 numMin.dflt=-100 numMax.min=-100000000000000 numMax.max=100000000000000 numMax.dflt=100
+	  //% group="2. Numbers"
+	  //% group.loc.de="2. Zahlen"
+	  //% weight=60 blockGap=8
+	  showRandomNumber(numMin: number, numMax: number) {
+	    let totalDigits = this.numberModules * this.count
+	    let maxDigits = Math.min(totalDigits, 15)
+	
+	    let maxAbs = 10**maxDigits - 1
+	
+	    // ggf. Grenzen vertauschen
+	    if (numMin > numMax) {
+	        const t = numMin
+	        numMin = numMax
+	        numMax = t
+	    }
+	
+	    const minAllowed = -maxAbs
+	    const maxAllowed = maxAbs
+	
+	    if (numMin < minAllowed || numMax > maxAllowed) {
+	        this._errorHandling()
+	        return
+	    }
+	
+		this.showNumber(Math.randomRange(numMin, numMax));
+	  }
+
+		
         /**
          * Schaltet die Segmente a–g an einer Stelle des Displays ein oder aus.
 		 *
@@ -459,333 +795,6 @@ namespace MAX7219_7Seg {
         }
 
         /**
-          * show a number. 
-          * @param num Number to be shown, eg: 281
-		*/
-        //% blockId="MAX7219_7Seg_shownumwithleadingzeros" block="%display|show number %num with leading zeros"
-        //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an, z.B. 28 als 0028."
-        //% jsdoc.loc.en="Shows a number on the display."
-        //% block.loc.de="%display|Zeige die Zahl %num und fülle vorne mit Nullen auf."
-        //% block.loc.en="%display|show number %num with leading zeros"
-        //% num.loc.de="Zahl, die angezeigt werden soll, z.B. 281"
-        //% num.loc.en="Number to be shown, e.g. 281"
-		//% group="2. Numbers"
-		//% group.loc.de="2. Zahlen"
-        //% weight=80 blockGap=8
-        //% parts="MAX7219_7Seg" num.dflt=281
-		showNumberWithLeadingZeros(num: number) {
-		    const totalDigits = this.numberModules * this.count
-		    let sign = 0
-		
-		    if (num < 0) {
-		        sign = -1
-		        num = -num
-		    }
-		
-		    let str = num.toString()
-
-			// auf Komma (Dezimalpunkt) überprüfen
-			let indexDP = str.indexOf(".")
-			let posDP = -1
-			if (indexDP >= 0) {
-				posDP = str.length - indexDP -1 // Position of DP counted from most right
-				str = str.replace(".", "")
-			}
-		
-		    // falls mehr Ziffern als Stellen → nur rechte totalDigits Stellen behalten
-		    if (str.length > totalDigits) {
-		        str = str.substr(str.length - totalDigits)
-		    }
-		
-		    // auf genau totalDigits Stellen mit Nullen links auffüllen
-		    let strMitNullen = ""
-		    for (let i = 0; i < totalDigits - str.length; i++) {
-		        strMitNullen += "0"
-		    }
-		    strMitNullen += str
-		
-		    // alle Stellen schreiben, rechtsbündig
-		    // globale Position 0 = rechteste Stelle
-		    for (let pos = 0; pos < totalDigits; pos++) {
-		        // von rechts nach links durch padded laufen
-		        const ch = strMitNullen.charAt(strMitNullen.length - 1 - pos)
-		        let digit = parseInt(ch)
-		        if (isNaN(digit)) digit = 0
-		
-		        this.showbit(
-		            digit,
-		            this._getDigitIndex(pos),
-		            this._getDisplayIndex(pos)
-		        )
-		    }
-		
-		    // Minuszeichen, falls negativ: ganz links
-		    if (sign < 0) {
-		        const minusPos = totalDigits - 1
-		        this._registerForOne(
-		            this._getDigitIndex(minusPos) + 1,
-		            0x01,                                  // '-' Muster
-		            this._getDisplayIndex(minusPos)
-		        )
-		    }
-
-			// Dezimalpunkt, falls vorhanden:
-			if (posDP >= 0) { this.showDP(this._getDigitIndex(posDP), this._getDisplayIndex(posDP), true) }
-		}
-
-		/*
-        showNumberWithLeadingZeros(num: number) {
-            if (num < 0) {
-                this._registerForOne(0+1, 0x01,0) // '-' //+1 because the register address for digit 0 is 1 .. for digit 7 is 8
-                num = -num
-            }
-            else {
-                this.showbit(Math.idiv(num, 10**((this.numberModules * this.count) -1)) % 10, 0, 0)
-			}
-			
-			for (let i = ((this.numberModules * this.count)-1)-1; i >= 0; i--) {
-				this.showbit(Math.idiv(num, 10**i) % 10, this._getDigitIndex(i), this._getDisplayIndex(i) ) 
-			}							 
-        }
-		*/
-
-		/* 
-		* (internal) Helps to find the digit of a display by given digit of the decimal number.
-		* num is the digit position in the decimal number, counted from the right, starting at 0.
-		* Example: In the number 34567, the digit 7 has num = 0, and the digit 3 has num = 4.
-		* 
-		* num ist die Stelle der Dezimalzahl, von rechts an gezählt, mit 0 beginnend. 
-		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
-		*/
-		_getDigitIndex(num: number) {
-			//return (num % this.count)
-			return (this.count-1 - (num % this.count))
-		}
-		/* 
-		* (internal) Helps to find the display index by given digit of the decimal number.
-		* num is the digit position in the decimal number, counted from the right, starting at 0.
-		* Example: In the number 34567, the digit 7 has num = 0, and the digit 3 has num = 4.
-		* 
-		* num ist die Stelle der Dezimalzahl, von rechts an gezählt, mit 0 beginnend. 
-		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
-		*/
-		_getDisplayIndex(num: number) {
-			return this.numberModules-1 - Math.idiv(num,this.count)
-		}
-
-        /**
-          * show a number with max 4 digits. 
-          * @param num is a number with max 4 digits, eg: 1284
-		*/
-        //% blockId="MAX7219_7Seg_shownum" block="%display|show number %num"
-        //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an."
-        //% jsdoc.loc.en="Shows a number on the display."
-        //% block.loc.de="%display|Zeige die Zahl %num"
-        //% block.loc.en="%display|show number %num"
-        //% num.loc.de="Eine Zahl mit max. 4 Stellen, z.B. 1284"
-        //% num.loc.en="is a number with max 4 digits, eg: 1284"
-		//% group="2. Numbers"
-		//% group.loc.de="2. Zahlen"
-        //% weight=90 blockGap=8
-        //% parts="MAX7219_7Seg" num.dflt=1273
-		showNumber(num: number) {
-			if (isNaN(num) || num === null || num === undefined) {
-				this._errorHandling();
-				return;
-			}
-			
-		    const totalDigits = this.numberModules * this.count
-		    let sign = 0
-		
-		    if (num < 0) {
-		        sign = -1
-		        num = -num
-		    }
-		
-		    let str = num.toString()
-
-			// auf Komma (Dezimalpunkt) überprüfen
-			let indexDP = str.indexOf(".")
-			let posDP = -1
-			if (indexDP >= 0) {
-				posDP = str.length - indexDP -1 // Position of DP counted from most right
-				str = str.replace(".", "")
-			}
-		
-		    // falls mehr Ziffern als Stellen → nur rechte totalDigits Stellen behalten
-		    if (str.length > totalDigits) {
-		        str = str.substr(str.length - totalDigits)
-		    }
-		
-		    // zuerst alles löschen
-		    for (let pos = 0; pos < totalDigits; pos++) {
-		        this.showbit(
-		            -1,
-		            this._getDigitIndex(pos),
-		            this._getDisplayIndex(pos)
-		        )
-		    }
-		
-		    // Ziffern rechtsbündig eintragen
-		    for (let i = 0; i < str.length && i < totalDigits; i++) {
-		        const ch = str.charAt(str.length - 1 - i) // von rechts
-		        let digit = parseInt(ch)
-		        if (isNaN(digit)) digit = 0
-		
-		        this.showbit(
-		            digit,
-		            this._getDigitIndex(i),
-		            this._getDisplayIndex(i)
-		        )
-		    }
-		
-		
-		    // Minuszeichen bei Bedarf:
-		    if (sign < 0) {
-		        // Position direkt links der höchstwertigen angezeigten Ziffer,
-		        // falls möglich, sonst die höchstwertige überschreiben
-		        let msdPos = str.length - 1
-		        if (msdPos < 0) msdPos = 0
-		        let minusPos = msdPos + 1
-		        if (minusPos >= totalDigits) {
-		            minusPos = msdPos
-		        }
-		
-		        this._registerForOne(
-		            this._getDigitIndex(minusPos) + 1,
-		            0x01,                              // '-'
-		            this._getDisplayIndex(minusPos)
-		        )
-		    }
-
-			// Dezimalpunkt, falls vorhanden:
-			if (posDP >= 0) { this.showDP(this._getDigitIndex(posDP), this._getDisplayIndex(posDP), true) }
-		}
-
-
-        /**
-          * show a hex number. 
-          * @param numText a hex number, eg: 0xA7F
-		*/
-        //% blockId="MAX7219_7Seg_showhex" block="%display|show hex number %numText"
-        //% jsdoc.loc.de="Zeigt eine Zahl im Hex-Format (0–F) an, z.B. 0xA734E."
-        //% jsdoc.loc.en="Shows a number in hex (0–F), eg. 0xA734E."
-        //% block.loc.de="%display|Zeige die Hexadezimalzahl %numText"
-        //% block.loc.en="%display|show hex number %numText"
-        //% numText.loc.de="Eine Hexadezimalzahl, z.B. 0xA7F"
-        //% numText.loc.en="a hex number, eg: 0xA7F"
-		//% group="2. Numbers"
-		//% group.loc.de="2. Zahlen"
-        //% weight=70 blockGap=8
-        //% parts="MAX7219_7Seg"
-		//% numText.shadow="text"
-		showHex(numText: string) {
-		    const totalDigits = this.numberModules * this.count
-		
-		    // Eingabetext bereinigen (Leerzeichen, Tabs, _ entfernen)
-		    let str = _stripSeparators(numText)
-		    if (!str) {
-		        this._errorHandling()
-		        return
-		    }
-		
-		    // Keine Vorzeichen bei Hex zulassen
-		    if (str.charAt(0) == "-" || str.charAt(0) == "+") {
-		        this._errorHandling()
-		        return
-		    }
-		
-		    // 0x / 0X Prefix entfernen
-		    if (str.length >= 2 && (str.substr(0, 2) == "0x" || str.substr(0, 2) == "0X")) {
-		        str = str.substr(2)
-		    } else {
-				this._errorHandling();
-				return
-			}
-		
-		    // Nur gültige Hex-Zeichen erlauben
-		    if (!_isHexDigits(str)) {
-		        this._errorHandling()
-		        return
-		    }
-		
-		    // Nur so viele Stellen wie Displays vorhanden sind (von rechts)
-		    if (str.length > totalDigits) {
-		        str = str.substr(str.length - totalDigits)
-		    }
-		
-		    // Erst alles löschen
-		    for (let pos = 0; pos < totalDigits; pos++) {
-		        this.showbit(
-		            -1,
-		            this._getDigitIndex(pos),
-		            this._getDisplayIndex(pos)
-		        )
-		    }
-		
-		    // Hexstellen von rechts nach links anzeigen
-		    for (let pos = 0; pos < str.length; pos++) {
-		        const ch = str.charAt(str.length - 1 - pos)
-		        let digit = 0
-		        const code = ch.charCodeAt(0)
-		
-		        if (code >= 48 && code <= 57) {              // '0'..'9'
-		            digit = code - 48
-		        } else if (code >= 65 && code <= 70) {       // 'A'..'F'
-		            digit = code - 65 + 10
-		        } else if (code >= 97 && code <= 102) {      // 'a'..'f'
-		            digit = code - 97 + 10
-		        } else {
-		            this._errorHandling()
-		            return
-		        }
-		
-		        this.showbit(
-		            digit,
-		            this._getDigitIndex(pos),
-		            this._getDisplayIndex(pos)
-		        )
-		    }
-		}
-
-
-	  /**
-	   * Show a random number defined by minimum and maximum.
-	   * The minimum is -10^15 and the maximum is 10^15.
-	   */
-	  //% block="%display|Show random number Min = %numMin Max = %numMax"
-	  //% block.loc.de="%display|Zeige Zufallszahl Min = %numMin Max = %numMax"
-	  //% jsdoc.loc.de="Zeigt eine Zufallszahl von Minimum bis Maximum."
-	  //% numMin.min=-100000000000000 numMin.max=100000000000000 numMax.min=-100000000000000 numMax.max=100000000000000
-	  //% group="2. Numbers"
-	  //% group.loc.de="2. Zahlen"
-	  //% weight=60 blockGap=8
-	  showRandomNumber(numMin: number, numMax: number) {
-	    let totalDigits = this.numberModules * this.count
-	    let maxDigits = Math.min(totalDigits, 15)
-	
-	    let maxAbs = 10**maxDigits - 1
-	
-	    // ggf. Grenzen vertauschen
-	    if (numMin > numMax) {
-	        const t = numMin
-	        numMin = numMax
-	        numMax = t
-	    }
-	
-	    const minAllowed = -maxAbs
-	    const maxAllowed = maxAbs
-	
-	    if (numMin < minAllowed || numMax > maxAllowed) {
-	        this._errorHandling()
-	        return
-	    }
-	
-		this.showNumber(Math.randomRange(numMin, numMax));
-	  }
-
-		
-        /**
          * show or hide dot point. 
          * @param bit is the position on a display, eg: 1
          * @param displayIndex is the display index, eg: 0
@@ -812,74 +821,94 @@ namespace MAX7219_7Seg {
             else this._registerForOne(bit+1, this.buf[displayIndex * this.count + bit] & 0x7F, displayIndex)
         }
 
-
-        /**
-         * Turn on all display modules. 
-         */
-        //% blockId="MAX7219_7Seg_on" block="%display|turn on all displays"
-        //% jsdoc.loc.de="Schaltet alle Displays einer Kette ein."
-        //% jsdoc.loc.en="Turns the display on."
-        //% block.loc.de="%display|Schalte alle Displays ein."
-        //% block.loc.en="%display|turn on all displays"
-		//% group="1. Setup" advanced=true
-		//% group.loc.de="1. Setup"
-        //% weight=90 blockGap=8
-        //% parts="MAX7219_7Seg"
-        on() {
-            this._registerAll(_SHUTDOWN,1);
-        }
-
-        /**
-         * Turn off the module. The registers can be accessed in off mode, but they take effect when the module is turned on again.
-         */
-        //% blockId="MAX7219_7Seg_off" block="%display|turn off all displays"
-        //% jsdoc.loc.de="Schaltet alle Displays einer Kette aus. Display kann im ausgeschalteten Zustand beschrieben werden, aber erst nach dem Wiedereinschalten werden die Zahlen sichtbar."
-        //% jsdoc.loc.en="Turns the display off. The registers can be accessed in off mode, but they take effect when the module is turned on again."
-        //% block.loc.de="%display|Schalte alle Displays aus."
-        //% block.loc.en="%display|turn off all displays"
-		//% group="1. Setup" advanced=true
-		//% group.loc.de="1. Setup"
-        //% weight=80 blockGap=8
-        //% parts="MAX7219_7Seg"
-        off() {
-            this._registerAll(_SHUTDOWN,0);			
-        }      
-		
-    
+			
+	  /**
+	   * Turn on all LEDs on all MAX7219s
+	   */
+	  //% block="%display|Fill all LEDs"
+	  //% block.loc.de="%display|Alle LEDs einschalten"
+	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs ein."
+	  //% group="4. Control all digits of all displays"
+	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
+	  //% weight=30 blockGap=8
+      //% parts="MAX7219_7Seg"
+	  fillAll() {
+	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 255)
+	  }
 	
-
-        /**
-         * Turn on a single module in a chain of modules. 
-         */
-        //% blockId="MAX7219_7Seg_onForOne" block="%display|turn on display %displayIndex"
-        //% jsdoc.loc.de="Schaltet ein Display einer Kette ein."
-        //% jsdoc.loc.en="Turns the display on."
-        //% block.loc.de="%display|Schalte das Displays %displayIndex ein."
-        //% block.loc.en="%display|turn on display %displayIndex"
-		//% group="1. Setup" advanced=true
-		//% group.loc.de="1. Setup"
-        //% weight=76 blockGap=8
-        //% parts="MAX7219_7Seg"
-        onForOne(displayIndex: number = 0) {
-            this._registerForOne(_SHUTDOWN,1,displayIndex);
-        }
-
-        /**
-         * Turn off a single module in a chain of modules. 
-         */
-        //% blockId="MAX7219_7Seg_offForOne" block="%display|turn off display %displayIndex"
-        //% jsdoc.loc.de="Schaltet ein einzelnes Display einer Kette aus."
-        //% jsdoc.loc.en="Turns off a single display of a chain."
-        //% block.loc.de="%display|Schalte das Display %displayIndex aus."
-        //% block.loc.en="%display|turn off display %displayIndex"
-		//% group="1. Setup" advanced=true
-		//% group.loc.de="1. Setup"
-        //% weight=73 blockGap=8
-        //% parts="MAX7219_7Seg"
-        offForOne(displayIndex: number = 0) {
-            this._registerForOne(_SHUTDOWN,0,displayIndex);			
-        }      
-		
+	  /**
+	   * Turn on LEDs on a specific MAX7219
+	   */
+	  //% block="%display|Fill LEDs on matrix index %index"
+	  //% block.loc.de="%display|Alle LEDs auf dem Display mit Index %index einschalten"
+	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
+	  //% index.min=0
+	  //% group="4. Control all digits of a single display" advanced=true
+	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
+	  //% weight=30 blockGap=8
+      //% parts="MAX7219_7Seg"
+	  fillForOne(index: number) {
+	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 255, index)
+	  }
+	
+	  /**
+	   * Turn off LEDs on all MAX7219s
+	   */
+	  //% block="%display|Clear all LEDs"
+	  //% block.loc.de="%display|Alle LEDs löschen"
+	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs aus."
+	  //% group="4. Control all digits of all displays"
+	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
+      //% weight=20 blockGap=8
+      //% parts="MAX7219_7Seg"
+	  clearAll() {
+	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 0)
+	  }
+	
+	  /**
+	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
+	   */
+	  //% block="%display|Clear LEDs on matrix index %index"
+	  //% block.loc.de="%display|Lösche alle LEDs auf dem Display %index"
+	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
+	  //% index.min=0 
+	  //% group="4. Control all digits of a single display" advanced=true
+	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
+	  //% weight=20 blockGap=8
+      //% parts="MAX7219_7Seg"
+	  clearForOne(index: number) {
+	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 0, index)
+	  }
+	
+	  /**
+	   * Turn on LEDs randomly on all MAX7219s
+	   */
+	  //% block="%display|Randomize all LEDs"
+	  //% block.loc.de="%display|LEDs auf allen Displays zufällig einschalten"
+	  //% jsdoc.loc.de="Schaltet auf allen Displays zufällig verteilte LEDs ein."
+	  //% group="4. Control all digits of all displays"
+	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
+	  //% weight=10 blockGap=8
+      //% parts="MAX7219_7Seg"
+	  randomizeAll() {
+	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, Math.randomRange(0, 255))
+	  }
+	
+	  /**
+	   * Turn on LEDs randomly on a specific MAX7219 (index 0=farthest on the chain)
+	   */
+	  //% block="%display|Randomize LEDs on matrix index %index"
+	  //% block.loc.de="%display|LEDs zufällig auf dem Display mit Index %index einschalten"
+	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
+	  //% index.min=0 
+	  //% group="4. Control all digits of a single display" advanced=true
+	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
+	  //% weight=10 blockGap=8
+      //% parts="MAX7219_7Seg"
+	  randomizeForOne(index: number) {
+	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, Math.randomRange(0, 255), index)
+	  }
+	
     }
 	
 
@@ -1016,47 +1045,6 @@ namespace MAX7219_7Seg {
 
 
 
-
-	
-    /**
-     * Create a Digit Display (MAX7219) object.
-	 * Enter the number of display-modules at a chain and the Digital Pins you use for communication.
-	 * The MISO Pin is not used for this purpose.
-	 * 
-     * @param numberModules the count of modules at a chain, eg: 1
-     * @param countDigits the count of digits at a display, eg: 8
-     * @param cs the CS pin for MAX7219, eg: DigitalPin.C16
-     * @param din the DIN pin for MAX7219, eg: DigitalPin.C17
-     * @param miso the MISO pin for MAX7219, eg: DigitalPin.C14
-     * @param clk the CLK pin for MAX7219, eg: DigitalPin.C15
-     */
-    //% blockId="MAX7219_7Seg_create" block="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
-    //% block.loc.de="Anzahl der Displays %numberModules|Anzahl der Stellen pro Modul %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
-    //% block.loc.en="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
-	//% jsdoc.loc.de="Richtet die MAX7219-Module ein, setzt sie zurück und initialisiert sie neu. Gib die Anzahl der Module an, die in deiner Kette aneinandergehängt wurden, und wieviele Stellen eine Anzeige hat. Der MISO-Pin wird nicht benutzt - er sollte am Calliope frei bleiben."
-    //% clk.loc.de="Pin für das Clock Signal (CLK)"
-    //% clk.loc.en="Pin used for Clock Signal (CLK)"
-    //% din.loc.de="Pin für das Daten Signal (DIN)"
-    //% din.loc.en="Pin used for Data Signal (DIN)"
-    //% cs.loc.de="Pin für das Steuerungssignal (CS)"
-    //% cs.loc.en="Pin used for Control Signal (CS)"
-    //% miso.loc.de="Pin ungenutzt (MISO)"
-    //% miso.loc.en="Pin not used (MISO)"
-    //% numberModules.loc.de="Anzahl der Displays, z.B. 1"
-    //% numberModules.loc.en="Count of display, eg: 1"
-    //% countDigits.loc.de="Anzahl der Stellen pro Display, z.B. 8"
-    //% countDigits.loc.en="Count of digits per display, eg: 8"
-	//% countDigits.min=1 countDigits.dflt=8 numberModules.min=1 numberModules.dflt=1
-	//% blockExternalInputs=true
-	//% group="1. Setup"
-	//% group.loc.de="1. Setup"
-    //% weight=100 blockGap=8
-    //% blockSetVariable=display
-    export function create(numberModules: number = 1, countDigits: number = 8, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
-        let display = new MAX7219_7Seg_obj(numberModules, countDigits, cs, din, miso, clk);
-        display.init();
-        return display;
-	}
 
     
 }
