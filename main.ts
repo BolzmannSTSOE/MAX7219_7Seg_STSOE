@@ -71,16 +71,16 @@ namespace MAX7219_7Seg {
 
 		// Definition of index of modules, digits, buffer:
 		//
-		//          | <-- Start of Chain (Calliope)                         End of Chain -->|
+		//          | <-- Start of Chain (Calliope)                            End of Chain -->
 		//           -------------------------------------------------------------------------
-		// Module:  |          0            |          1            |          2            | 
+		// Module:  |          0            |          1            |          2            | ...
 		//           -------------------------------------------------------------------------
-		// Digit:   | 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| 
+		// Digit:   | 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| ...
 		//           -------------------------------------------------------------------------
-		// Buffer:  | 0  1  2  3  4  5  6  7| 8  9 10 11 12 13 14 15|16 17 18 19 20 21 22 23| 
+		// Buffer:  | 0  1  2  3  4  5  6  7| 8  9 10 11 12 13 14 15|16 17 18 19 20 21 22 23| ...
 		//           -------------------------------------------------------------------------
-		//          | 7  6  5  4  3  2  1  0| 7  6  5  4  3  2  1  0| 7  6  5  4  3  2  1  0|
-		//          |23 22 21 20 19 18 17 16|15 14 13 12 11 10  9  8| 7  6  5  4  3  2  1  0|
+		// MAX7219: | 7  6  5  4  3  2  1  0| 7  6  5  4  3  2  1  0| 7  6  5  4  3  2  1  0| ...
+		//           -------------------------------------------------------------------------
 
 
 		
@@ -161,6 +161,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|Reihenfolge der Displays umkehren %reversed"
 	  //% jsdoc.loc.de="Konfiguriert die umgekehrte Reihenfolge, wenn mehrere Displays (MAX7219-Module) in einer Kette aneinandergehängt wurden."
 	  //% group="1. Setup" blockExternalInputs=true advanced=true
+      //% parts="MAX7219_7Seg"
 	  reverseOrder(reversed: boolean) {	    
 	    this._reversed = reversed
 	  }
@@ -177,6 +178,7 @@ namespace MAX7219_7Seg {
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit aller Displays ein (0 = dunkel, 15 = sehr hell). ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
 	  //% level.min=0 level.max=15 level.dflt=1 group="3. Basic light control"
+      //% parts="MAX7219_7Seg"
 	  brightnessAll(level: number) {
 		this._registerAll(_INTENSITY, level)
 	  }
@@ -190,6 +192,7 @@ namespace MAX7219_7Seg {
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am weitesten in der Kette entfernt. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
 	  //% level.min=0 level.max=15 level.dflt=1 index.min=0 group="3. Basic light control" advanced=true
+      //% parts="MAX7219_7Seg"
 	  brightnessForOne(level: number, index: number) {
 		this._registerForOne(_INTENSITY, level, index)
 	  }
@@ -203,6 +206,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|Alle LEDs einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs ein."
 	  //% group="3. Basic light control"
+      //% parts="MAX7219_7Seg"
 	  fillAll() {
 	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 255)
 	  }
@@ -214,6 +218,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|Alle LEDs auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
+      //% parts="MAX7219_7Seg"
 	  fillForOne(index: number) {
 	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 255, index)
 	  }
@@ -225,6 +230,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|Alle LEDs löschen"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs aus."
 	  //% group="3. Basic light control"
+      //% parts="MAX7219_7Seg"
 	  clearAll() {
 	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 0)
 	  }
@@ -236,6 +242,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|LEDs auf dem Display mit Index %index löschen"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
 	  //% index.min=0 group="3. Basic light control" advanced=true
+      //% parts="MAX7219_7Seg"
 	  clearForOne(index: number) {
 	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 0, index)
 	  }
@@ -247,6 +254,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|LEDs auf allen Displays zufällig einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays zufällig verteilte LEDs ein."
 	  //% group="3. Basic light control"
+      //% parts="MAX7219_7Seg"
 	  randomizeAll() {
 	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, Math.randomRange(0, 255))
 	  }
@@ -258,6 +266,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|LEDs zufällig auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
+      //% parts="MAX7219_7Seg"
 	  randomizeForOne(index: number) {
 	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, Math.randomRange(0, 255), index)
 	  }
@@ -270,11 +279,11 @@ namespace MAX7219_7Seg {
 			let ErrorMask = [0b1001111, 0b0000101, 0b0000101, 0b0011101, 0b0000101];
 			let counttmp = 0
 			for (let i = 0; i < Math.min(this.count,5); i++) {
-				this._registerAll(this._getDigitIndex(i)+1, ErrorMask[i])
+				this._registerAll(i+1, ErrorMask[i])
 				counttmp++
 			}
 			for (let i = counttmp; i < this.count; i++) {
-				this._registerAll(this._getDigitIndex(i)+1, 0)
+				this._registerAll(i+1, 0)
 			}
 		}
         
@@ -635,8 +644,8 @@ namespace MAX7219_7Seg {
           * @param numText a hex number, eg: 0xA7F
 	*/
         //% blockId="MAX7219_7Seg_showhex" block="%display|show hex number %numText"
-        //% jsdoc.loc.de="Zeigt eine Zahl im Hex-Format (0–F) an."
-        //% jsdoc.loc.en="Shows a number in hex (0–F)."
+        //% jsdoc.loc.de="Zeigt eine Zahl im Hex-Format (0–F) an, z.B. 0xA734E."
+        //% jsdoc.loc.en="Shows a number in hex (0–F), eg. 0xA734E."
         //% block.loc.de="%display|Zeige die Hexadezimalzahl %numText"
         //% block.loc.en="%display|show hex number %numText"
         //% numText.loc.de="Eine Hexadezimalzahl, z.B. 0xA7F"
@@ -663,7 +672,10 @@ namespace MAX7219_7Seg {
 		    // 0x / 0X Prefix entfernen
 		    if (str.length >= 2 && (str.substr(0, 2) == "0x" || str.substr(0, 2) == "0X")) {
 		        str = str.substr(2)
-		    }
+		    } else {
+				this._errorHandling();
+				return
+			}
 		
 		    // Nur gültige Hex-Zeichen erlauben
 		    if (!_isHexDigits(str)) {
