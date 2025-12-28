@@ -132,10 +132,9 @@ namespace MAX7219_7Seg {
 	   *
 	   * @param reversed Defines the counting direction of the displays, eg: true
 	   */
-	  //% block="Reverse printing order %reversed"
+	  //% block="%display|Reverse printing order %reversed"
 	  //% block.loc.de="Reihenfolge der Displays umkehren %reversed"
 	  //% jsdoc.loc.de="Konfiguriert die umgekehrte Reihenfolge, wenn mehrere Displays (MAX7219-Module) in einer Kette aneinandergehängt wurden."
-	  //% reversed.shadow=toggleOnOff
 	  //% group="1. Setup" blockExternalInputs=true advanced=true
 	  reverseOrder(reversed: boolean) {	    
 	    this._reversed = reversed
@@ -146,7 +145,7 @@ namespace MAX7219_7Seg {
 	   * Set brightness level of LEDs on all MAX7219s
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
 	   */
-	  //% block="Set all brightness level $level"
+	  //% block="%display|Set all brightness level $level"
 	  //% block.loc.de="Helligkeit aller Displays auf $level setzen"
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit aller Displays ein (0 = dunkel, 15 = sehr hell). ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
@@ -159,7 +158,7 @@ namespace MAX7219_7Seg {
 	   * Set brightness level of LEDs on a specific MAX7219s (index 0=farthest on the chain).
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
 	   */
-	  //% block="Set brightness level $level on matrix index = $index"
+	  //% block="%display|Set brightness level $level on matrix index = $index"
 	  //% block.loc.de="Helligkeit $level auf dem Display mit Index $index setzen"
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am weitesten in der Kette entfernt. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
@@ -173,7 +172,7 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn on all LEDs on all MAX7219s
 	   */
-	  //% block="Fill all LEDs"
+	  //% block="%display|Fill all LEDs"
 	  //% block.loc.de="Alle LEDs einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs ein."
 	  //% group="3. Basic light control"
@@ -184,7 +183,7 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn on LEDs on a specific MAX7219
 	   */
-	  //% block="Fill LEDs on matrix index = $index"
+	  //% block="%display|Fill LEDs on matrix index = $index"
 	  //% block.loc.de="Alle LEDs auf dem Display mit Index $index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
@@ -195,7 +194,7 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn off LEDs on all MAX7219s
 	   */
-	  //% block="Clear all LEDs"
+	  //% block="%display|Clear all LEDs"
 	  //% block.loc.de="Alle LEDs löschen"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs aus."
 	  //% group="3. Basic light control"
@@ -206,7 +205,7 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
 	   */
-	  //% block="Clear LEDs on matrix index = $index"
+	  //% block="%display|Clear LEDs on matrix index = $index"
 	  //% block.loc.de="LEDs auf dem Display mit Index $index löschen"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
 	  //% index.min=0 group="3. Basic light control" advanced=true
@@ -217,7 +216,7 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn on LEDs randomly on all MAX7219s
 	   */
-	  //% block="Randomize all LEDs"
+	  //% block="%display|Randomize all LEDs"
 	  //% block.loc.de="LEDs auf allen Displays zufällig einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays zufällig verteilte LEDs ein."
 	  //% group="3. Basic light control"
@@ -228,7 +227,7 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn on LEDs randomly on a specific MAX7219 (index 0=farthest on the chain)
 	   */
-	  //% block="Randomize LEDs on matrix index = $index"
+	  //% block="%display|Randomize LEDs on matrix index = $index"
 	  //% block.loc.de="LEDs zufällig auf dem Display mit Index $index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
@@ -277,9 +276,9 @@ namespace MAX7219_7Seg {
 	 	 * @param pos Digit at display of MAX7219, eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="MAX7219_7Seg_segmentsAt" block="$this(display)|segments a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
-        //% block.loc.de="$this(display)|Einschalten der Segmente:| a %a b %b c %c d %d e %e f %f g %g|an der Stelle %pos|des Displays %displayIndex"
-        //% block.loc.en="$this(display)|segments:| a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
+        //% blockId="MAX7219_7Seg_segmentsAt" block="%display|segments a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
+        //% block.loc.de="%display|Einschalten der Segmente:| a %a b %b c %c d %d e %e f %f g %g|an der Stelle %pos|des Displays %displayIndex"
+        //% block.loc.en="%display|segments:| a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
         //% a.loc.de="Segment a (oben)"
         //% a.loc.en="Segment a (top)"
         //% b.loc.de="Segment b (rechts oben)"
@@ -300,7 +299,7 @@ namespace MAX7219_7Seg {
         //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
         //% inlineInputMode=external
         //% weight=90 blockGap=8 advanced=true
-        //% parts="MAX7219_7Seg" pos.min=0 pos.max=3 pos.dflt=0 display.min=0 display.dflt=0
+        //% parts="MAX7219_7Seg" pos.min=0 pos.max=3 pos.dflt=0 displayIndex.min=0 displayIndex.dflt=0
         segmentsAt(a: boolean, b: boolean, c: boolean, d: boolean, e: boolean, f: boolean, g: boolean, pos: number = 0, displayIndex: number = 0) {
             let mask = 0
             if (a) mask |= 1 << 6
@@ -339,11 +338,11 @@ namespace MAX7219_7Seg {
          * @param pos Digit position (0..count-1), eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="MAX7219_7Seg_lightsegmentsat" block="$this(display)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
+        //% blockId="MAX7219_7Seg_lightsegmentsat" block="%display|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
         //% jsdoc.loc.de="Zeigt Segmente über eine Bitmaske an (für Fortgeschrittene), z.B. 0b00110111 für H oder 0b00110011 für 4."
         //% jsdoc.loc.en="Lights segments using a bitmask (advanced)."
-        //% block.loc.de="$this(display)|Einschalten der Segmente (binär) %segmentsText|der Stelle %pos|des Displays %displayIndex"
-        //% block.loc.en="$this(display)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
+        //% block.loc.de="%display|Einschalten der Segmente (binär) %segmentsText|der Stelle %pos|des Displays %displayIndex"
+        //% block.loc.en="%display|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
         //% segmentsText.loc.de="Segment-BitMaske (empfohlen binär), z.B. 0b1111111 für 8 oder 0b00110011 für 4"
         //% segmentsText.loc.en="Segment-bitmask (binary recommended), e.g. 0b1111111 for 8 or 0b00110011 for 4"
         //% pos.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
@@ -351,7 +350,7 @@ namespace MAX7219_7Seg {
         //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
         //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
         //% weight=80 blockGap=8 advanced=true
-		//% parts="MAX7219_7Seg" segmentsText.dflt="0b0110111" pos.min=0 pos.max=3 pos.dflt=0
+		//% parts="MAX7219_7Seg" segmentsText.dflt="0b0110111" pos.min=0 pos.max=3 pos.dflt=0 displayIndex.min=0 displayIndex.dflt=0
         //% segmentsText.shadow="text"
         lightSegmentsAt(segmentsText: string = "0b0110111", pos: number = 0, displayIndex: number = 0) {
             let segments = parseBinText(segmentsText)
