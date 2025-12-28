@@ -641,6 +641,73 @@ namespace MAX7219_7Seg {
         //% weight=30 blockGap=8
         //% parts="MAX7219_7Seg"
 		//% numText.shadow="text"
+		showHex(numText: string) {
+		    const totalDigits = this.numberModules * this.count
+		
+		    // Eingabetext bereinigen (Leerzeichen, Tabs, _ entfernen)
+		    let str = _stripSeparators(numText)
+		    if (!str) {
+		        this._errorHandling()
+		        return
+		    }
+		
+		    // Keine Vorzeichen bei Hex zulassen
+		    if (str.charAt(0) == "-" || str.charAt(0) == "+") {
+		        this._errorHandling()
+		        return
+		    }
+		
+		    // 0x / 0X Prefix entfernen
+		    if (str.length >= 2 && (str.substr(0, 2) == "0x" || str.substr(0, 2) == "0X")) {
+		        str = str.substr(2)
+		    }
+		
+		    // Nur gültige Hex-Zeichen erlauben
+		    if (!_isHexDigits(str)) {
+		        this._errorHandling()
+		        return
+		    }
+		
+		    // Nur so viele Stellen wie Displays vorhanden sind (von rechts)
+		    if (str.length > totalDigits) {
+		        str = str.substr(str.length - totalDigits)
+		    }
+		
+		    // Erst alles löschen
+		    for (let pos = 0; pos < totalDigits; pos++) {
+		        this.showbit(
+		            -1,
+		            this._getDigitIndex(pos),
+		            this._getDisplayIndex(pos)
+		        )
+		    }
+		
+		    // Hexstellen von rechts nach links anzeigen
+		    for (let pos = 0; pos < str.length; pos++) {
+		        const ch = str.charAt(str.length - 1 - pos)
+		        let digit = 0
+		        const code = ch.charCodeAt(0)
+		
+		        if (code >= 48 && code <= 57) {              // '0'..'9'
+		            digit = code - 48
+		        } else if (code >= 65 && code <= 70) {       // 'A'..'F'
+		            digit = code - 65 + 10
+		        } else if (code >= 97 && code <= 102) {      // 'a'..'f'
+		            digit = code - 97 + 10
+		        } else {
+		            this._errorHandling()
+		            return
+		        }
+		
+		        this.showbit(
+		            digit,
+		            this._getDigitIndex(pos),
+		            this._getDisplayIndex(pos)
+		        )
+		    }
+		}
+
+		/*
         showHex(numText: string) {
 		    const totalDigits = this.numberModules * this.count
 		    const maxSafeHexDigits = 13 // if bigger than 16^13 the handling of integers is not safe (max = 2^53-1)
@@ -656,17 +723,8 @@ namespace MAX7219_7Seg {
 				if (num > 16**i) this.showbit(Math.idiv(num, 16**i) % 16, this._getDigitIndex(i), this._getDisplayIndex(i));
 				else this.showbit(-1, this._getDigitIndex(i), this._getDisplayIndex(i));
 			}
-			/*
-			if (num > 0xFFF) this.showbit(Math.idiv(num, 0x1000) % 16, 0); 
-			else this.showbit(-1,0);
-			if (num >  0xFF) this.showbit(Math.idiv(num, 0x100) % 16, 1); 
-			else this.showbit(-1,1);
-			if (num >   0xF) this.showbit(Math.idiv(num, 0x10) % 16, 2); 
-			else this.showbit(-1,2);
-			if (num >=  0x0) this.showbit(num % 16, 3); 
-			else this.showbit(-1,3);
-			*/
         }
+		*/
 
 	  /**
 	   * Show a random number defined by minimum and maximum.
