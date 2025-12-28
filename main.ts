@@ -459,7 +459,7 @@ namespace MAX7219_7Seg {
 			let indexDP = str.indexOf(".")
 			let posDP = -1
 			if (indexDP >= 0) {
-				posDP = totalDigits - (str.length - indexDP) // Position of DP in buffer-Index
+				posDP = str.length - indexDP -1 // Position of DP counted from most right
 				str = str.replace(".", "")
 			}
 		
@@ -577,7 +577,7 @@ namespace MAX7219_7Seg {
 			let indexDP = str.indexOf(".")
 			let posDP = -1
 			if (indexDP >= 0) {
-				posDP = totalDigits - (str.length - indexDP) // Position of DP in buffer-Index
+				posDP = str.length - indexDP -1 // Position of DP counted from most right
 				str = str.replace(".", "")
 			}
 		
