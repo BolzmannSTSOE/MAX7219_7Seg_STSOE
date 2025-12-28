@@ -24,7 +24,7 @@ namespace MAX7219_7Seg {
   //01111110 00110000 01101101 01111001 00110011 
   //01011011 01011111 01110000 01111111 01111011 
   //01110111 00011111 01001110 00111101 01001111 01000111
-  let _SEGMENTS = [0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x7B, 0x77, 0x1F, 0x8E, 0x3D, 0x4F, 0x47];
+  let _SEGMENTS = [0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x7B, 0x77, 0x1F, 0x4E, 0x3D, 0x4F, 0x47];
 
     /**
      * MAX7219 LED display
@@ -40,12 +40,14 @@ namespace MAX7219_7Seg {
         count: number = 8;  // number of digits of a display module
 		_reversed = false
 
-        constructor(numberModules: number, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin) {
+        constructor(numberModules: number, countDigits: number, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin) {
 			this.numberModules = numberModules;
+			this.count = countDigits;
+			this.buf = pins.createBuffer(this.numberModules * this.count)
 			this.cs = cs;
             this.din = din;
             this.miso = miso;
-            this.clk = clk;
+            this.clk = clk
         }
 
         /**
@@ -68,6 +70,20 @@ namespace MAX7219_7Seg {
             
         }
 
+		// Definition of index of modules, digits, buffer:
+		//
+		//          | <-- Start of Chain (Calliope)                                 End of Chain -->
+		//           -----------------------------------------------------------------------------
+		// Module:  |          0            |          1            |          2            | ...
+		//           -----------------------------------------------------------------------------
+		// Digit:   | 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| ...
+		//           -----------------------------------------------------------------------------
+		// Buffer:  | 0  1  2  3  4  5  6  7| 8  9 10 11 12 13 14 15|16 17 18 19 20 21 22 23| ...
+		//           -----------------------------------------------------------------------------
+		//
+
+
+		
 	  /**
 	   * (internal function) write command and data to all MAX7219s
 	   */
@@ -87,6 +103,9 @@ namespace MAX7219_7Seg {
 		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
 		  pins.spiWrite(data) //data (8 bits)
 		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+		  if (addressCode > 0 && addressCode <= 8) {
+			  this.buf[i * this.count + addressCode - 1] = data //-1 because the register address for digit 0 is 1 .. for digit 7 is 8
+		  }
 		}
 		pins.digitalWritePin(this.cs, 1) // LOAD=HIGH, commands take effect
 		//control.waitMicros(MAX7219_PAUSE_TIME_US);
@@ -106,7 +125,8 @@ namespace MAX7219_7Seg {
 		if (displayIndex <= this.numberModules - 1) {
 		  pins.digitalWritePin(this.cs, 0) // LOAD=LOW, start to receive commands
 		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
-		  for (let i = 0; i < this.numberModules; i++) {
+		  // Wrong order (old): for (let i = 0; i < this.numberModules; i++) {
+		  for (let i = this.numberModules - 1; i >= 0; i--) {
 			// when a MAX7219 received a new command/data set
 			// the previous one would be pushed to the next matrix along the chain via DOUT
 			if (i == displayIndex) { // send change to target
@@ -114,6 +134,9 @@ namespace MAX7219_7Seg {
 			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
 			  pins.spiWrite(data) //data (8 bits)
 			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
+			  if (addressCode > 0 && addressCode <= 8) {
+				  this.buf[i * this.count + addressCode - 1] = data //-1 because the register address for digit 0 is 1 .. for digit 7 is 8
+			  }
 			} else { // do nothing to non-targets
 			  pins.spiWrite(_NOOP)
 			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
@@ -144,12 +167,14 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Set brightness level of LEDs on all MAX7219s
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
+	   * 
+	   * @param level the level of brightness (0..15), eg:1
 	   */
 	  //% block="%display|Set all brightness level %level"
 	  //% block.loc.de="%display|Helligkeit aller Displays auf %level setzen"
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit aller Displays ein (0 = dunkel, 15 = sehr hell). ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
-	  //% level.min=0 level.max=15 level.defl=1 group="3. Basic light control"
+	  //% level.min=0 level.max=15 level.dflt=1 group="3. Basic light control"
 	  brightnessAll(level: number) {
 		this._registerAll(_INTENSITY, level)
 	  }
@@ -243,11 +268,11 @@ namespace MAX7219_7Seg {
 			let ErrorMask = [0b1111001, 0b1010000, 0b1010000, 0b1011100, 0b1010000];
 			let counttmp = 0
 			for (let i = 0; i < Math.min(this.count,5); i++) {
-				this._registerAll(i, ErrorMask[i])
+				this._registerAll(i+1, ErrorMask[i])
 				counttmp++
 			}
 			for (let i = counttmp; i < this.count; i++) {
-				this._registerAll(i, 0)
+				this._registerAll(i+1, 0)
 			}
 		}
         
@@ -310,8 +335,8 @@ namespace MAX7219_7Seg {
             if (f) mask |= 1 << 1
             if (g) mask |= 1 << 0
             //if (dp) mask |= 1 << 7			
-            this.buf[pos % this.count] = mask & 0xFF
-            this._registerForOne(pos+1, mask & 0xFF, displayIndex) //+1 because the register address for digit 0 is 1, for digit 7 is 8
+            //this.buf[pos % this.count] = mask & 0xFF
+            this._registerForOne(pos+1, mask & 0xFF, displayIndex) //+1 because the register address for digit 0 is 1 .. for digit 7 is 8
         }
 		
 
@@ -358,8 +383,8 @@ namespace MAX7219_7Seg {
 				this._errorHandling()
 				return;
 			}
-            this.buf[pos % this.count] = segments & 0x7F
-            this._registerForOne(pos+1, segments & 0x7F, displayIndex) //+1 because the register address for digit 0 is 1, for digit 7 is 8
+            //this.buf[pos % this.count] = segments & 0x7F
+            this._registerForOne(pos+1, segments & 0x7F, displayIndex) //+1 because the register address for digit 0 is 1 .. for digit 7 is 8
         }
 
 		
@@ -383,16 +408,16 @@ namespace MAX7219_7Seg {
         //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
         //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
         //% weight=60 blockGap=8
-        //% parts="MAX7219_7Seg" num.min=0 num.max=15 num.dflt=5 bit.min=0
-        showbit(num: number = 5, bit: number = 0, displayIndex = 0) {
+        //% parts="MAX7219_7Seg" num.min=0 num.max=15 num.dflt=5 bit.min=0 bit.min=0 bit.dflt=0 displayIndex.min=0 displayIndex.dlft=0
+        showbit(num: number = 5, bit: number = 0, displayIndex: number = 0) {
 			// bei num=-1 wird das Digit ausgeschaltet
 		    if (num < 0) {
-		        this.buf[bit % this.count] = 0
+		        //this.buf[bit % this.count] = 0
 		        this._registerForOne((bit % this.count)+1, 0, displayIndex)
 		        return
 		    }
-            this.buf[bit % this.count] = _SEGMENTS[num % 16]
-            this._registerForOne((bit % this.count)+1, _SEGMENTS[num % 16], displayIndex) //+1 because the register address for digit 0 is 1, for digit 7 is 8
+            //this.buf[bit % this.count] = _SEGMENTS[num % 16]
+            this._registerForOne((bit % this.count)+1, _SEGMENTS[num % 16], displayIndex) //+1 because the register address for digit 0 is 1 .. for digit 7 is 8
         }
 
         /**
@@ -410,7 +435,7 @@ namespace MAX7219_7Seg {
         //% parts="MAX7219_7Seg" num.dflt=281
         showNumberWithLeadingZeros(num: number) {
             if (num < 0) {
-                this._registerForOne(0+1, 0x01,0) // '-' //+1 because the register address for digit 0 is 1, for digit 7 is 8
+                this._registerForOne(0+1, 0x01,0) // '-' //+1 because the register address for digit 0 is 1 .. for digit 7 is 8
                 num = -num
             }
             else {
@@ -471,7 +496,7 @@ namespace MAX7219_7Seg {
 			}
 			if (num == 0) this.showbit(0, this.count-1, this.numberModules-1)
             if (sign < 0) {
-                this._registerForOne(this._getDigitIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))+1, 0x01, this._getDisplayIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))) // 0x01 = '-'   //+1 because the register address for digit 0 is 1, for digit 7 is 8
+                this._registerForOne(this._getDigitIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))+1, 0x01, this._getDisplayIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))) // 0x01 = '-'   //+1 because the register address for digit 0 is 1 .. for digit 7 is 8
             }
 			/*
 			for (let i = 0; i < this.count; i++) {
@@ -523,13 +548,35 @@ namespace MAX7219_7Seg {
 
 	  /**
 	   * Show a random number defined by minimum and maximum.
+	   * The minimum is -10^15 and the maximum is 10^15.
 	   */
 	  //% block="%display|Show random number Min = %numMin Max = %numMax"
 	  //% block.loc.de="%display|Zeige Zufallszahl Min = %numMin Max = %numMax"
 	  //% jsdoc.loc.de="Zeigt eine Zufallszahl von Minimum bis Maximum."
-	  //% index.min=0 group="3. Basic light control" advanced=true
+	  //% numMin.min=-100000000000000 numMin.max=100000000000000 numMax.min=-100000000000000 numMax.max=100000000000000
+	  //% group="3. Basic light control" advanced=true
 	  showRandomNumber(numMin: number, numMax: number) {
-		  this.showNumber(Math.randomRange(numMin, numMax));
+	    let totalDigits = this.numberModules * this.count
+	    let maxDigits = Math.min(totalDigits, 15)
+	
+	    let maxAbs = 10**maxDigits - 1
+	
+	    // ggf. Grenzen vertauschen
+	    if (numMin > numMax) {
+	        const t = numMin
+	        numMin = numMax
+	        numMax = t
+	    }
+	
+	    const minAllowed = -maxAbs
+	    const maxAllowed = maxAbs
+	
+	    if (numMin < minAllowed || numMax > maxAllowed) {
+	        this._errorHandling()
+	        return
+	    }
+	
+		this.showNumber(Math.randomRange(numMin, numMax));
 	  }
 
 		
@@ -554,8 +601,8 @@ namespace MAX7219_7Seg {
         //% parts="MAX7219_7Seg"
         showDP(bit: number = 1, displayIndex: number = 0, show: boolean = true) {
             bit = bit % this.count
-            if (show) this._registerForOne(bit+1, this.buf[bit] | 0x80, displayIndex)
-            else this._registerForOne(bit+1, this.buf[bit] & 0x7F, displayIndex)
+            if (show) this._registerForOne(bit+1, this.buf[displayIndex * this.count + bit] | 0x80, displayIndex)
+            else this._registerForOne(bit+1, this.buf[displayIndex * this.count + bit] & 0x7F, displayIndex)
         }
 
         /**
@@ -572,7 +619,7 @@ namespace MAX7219_7Seg {
 			for (let m = 0; m < this.numberModules; m++) {
 	            for (let i = 0; i < this.count; i++) {
 	                this._registerForOne(i+1, 0, m)
-	                this.buf[m * this.count + i] = 0
+	                //this.buf[m * this.count + i] = 0
 	            }
 			}
         }
@@ -748,16 +795,17 @@ namespace MAX7219_7Seg {
 	 * Enter the number of display-modules at a chain and the Digital Pins you use for communication.
 	 * The MISO Pin is not used for this purpose.
      * @param numberModules the count of modules at a chain, eg: 1
+     * @param countDigits the count of digits at a display, eg: 8
      * @param cs the CS pin for MAX7219, eg: DigitalPin.C16
      * @param din the DIN pin for MAX7219, eg: DigitalPin.C17
      * @param miso the MISO pin for MAX7219, eg: DigitalPin.C14
      * @param clk the CLK pin for MAX7219, eg: DigitalPin.C15
      */
     //% weight=200 blockGap=8
-    //% blockId="MAX7219_7Seg_create" block="Number of modules %numberModules|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
-    //% block.loc.de="Anzahl der Displays %numberModules|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
-    //% block.loc.en="Number of modules %numberModules|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
-	//% jsdoc.loc.de="Richtet die MAX7219-Module ein, setzt sie zurück und initialisiert sie neu. Gib die Anzahl der Module an, die in deiner Kette aneinandergehängt wurden. Der MISO-Pin wird nicht benutzt - er sollte am Calliope frei bleiben."
+    //% blockId="MAX7219_7Seg_create" block="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+    //% block.loc.de="Anzahl der Displays %numberModules|Anzahl der Stellen pro Modul %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+    //% block.loc.en="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
+	//% jsdoc.loc.de="Richtet die MAX7219-Module ein, setzt sie zurück und initialisiert sie neu. Gib die Anzahl der Module an, die in deiner Kette aneinandergehängt wurden, und wieviele Stellen eine Anzeige hat. Der MISO-Pin wird nicht benutzt - er sollte am Calliope frei bleiben."
     //% clk.loc.de="Pin für das Clock Signal (CLK)"
     //% clk.loc.en="Pin used for Clock Signal (CLK)"
     //% din.loc.de="Pin für das Daten Signal (DIN)"
@@ -768,10 +816,12 @@ namespace MAX7219_7Seg {
     //% miso.loc.en="Pin not used (MISO)"
     //% numberModules.loc.de="Anzahl der Displays, z.B. 1"
     //% numberModules.loc.en="Count of display, eg: 1"
-    //% inlineInputMode=inline count.min=1 count.dflt=1
+    //% countDigits.loc.de="Anzahl der Stellen pro Display, z.B. 8"
+    //% countDigits.loc.en="Count of digits per display, eg: 8"
+    //% inlineInputMode=inline countDigits.min=1 countDigits.dflt=8 numberModules.min=1 numberModules.dflt=1
     //% blockSetVariable=display
-    export function create(numberModules: number = 1, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
-        let display = new MAX7219_7Seg_obj(numberModules, cs, din, miso, clk);
+    export function create(numberModules: number = 1, countDigits: number = 8, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
+        let display = new MAX7219_7Seg_obj(numberModules, countDigits, cs, din, miso, clk);
         display.init();
         return display;
 	}
