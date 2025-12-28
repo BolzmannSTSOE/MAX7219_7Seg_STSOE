@@ -68,7 +68,7 @@ set display intensity.
 
 ## Demo
 
-![](https://github.com/BolzmannSTSOE/MAX7219_8x8_STSOE/demo.jpg)
+![](./demo.jpg)
 
 ## License  
 
