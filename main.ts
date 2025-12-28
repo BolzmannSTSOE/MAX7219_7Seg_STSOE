@@ -145,8 +145,8 @@ namespace MAX7219_7Seg {
 	   * Set brightness level of LEDs on all MAX7219s
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
 	   */
-	  //% block="%display|Set all brightness level $level"
-	  //% block.loc.de="Helligkeit aller Displays auf $level setzen"
+	  //% block="%display|Set all brightness level %level"
+	  //% block.loc.de="Helligkeit aller Displays auf %level setzen"
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit aller Displays ein (0 = dunkel, 15 = sehr hell). ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
 	  //% level.min=0 level.max=15 level.defl=1 group="3. Basic light control"
@@ -158,8 +158,8 @@ namespace MAX7219_7Seg {
 	   * Set brightness level of LEDs on a specific MAX7219s (index 0=farthest on the chain).
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
 	   */
-	  //% block="%display|Set brightness level $level on matrix index = $index"
-	  //% block.loc.de="Helligkeit $level auf dem Display mit Index $index setzen"
+	  //% block="%display|Set brightness level %level on matrix index %index"
+	  //% block.loc.de="Helligkeit %level auf dem Display mit Index %index setzen"
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am weitesten in der Kette entfernt. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
 	  //% level.min=0 level.max=15 level.defl=1 index.min=0 group="3. Basic light control" advanced=true
@@ -183,8 +183,8 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn on LEDs on a specific MAX7219
 	   */
-	  //% block="%display|Fill LEDs on matrix index = $index"
-	  //% block.loc.de="Alle LEDs auf dem Display mit Index $index einschalten"
+	  //% block="%display|Fill LEDs on matrix index %index"
+	  //% block.loc.de="Alle LEDs auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
 	  fillForOne(index: number) {
@@ -205,8 +205,8 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
 	   */
-	  //% block="%display|Clear LEDs on matrix index = $index"
-	  //% block.loc.de="LEDs auf dem Display mit Index $index löschen"
+	  //% block="%display|Clear LEDs on matrix index %index"
+	  //% block.loc.de="LEDs auf dem Display mit Index %index löschen"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
 	  //% index.min=0 group="3. Basic light control" advanced=true
 	  clearForOne(index: number) {
@@ -227,8 +227,8 @@ namespace MAX7219_7Seg {
 	  /**
 	   * Turn on LEDs randomly on a specific MAX7219 (index 0=farthest on the chain)
 	   */
-	  //% block="%display|Randomize LEDs on matrix index = $index"
-	  //% block.loc.de="LEDs zufällig auf dem Display mit Index $index einschalten"
+	  //% block="%display|Randomize LEDs on matrix index %index"
+	  //% block.loc.de="LEDs zufällig auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
 	  randomizeForOne(index: number) {
@@ -407,7 +407,7 @@ namespace MAX7219_7Seg {
         //% num.loc.de="Zahl, die angezeigt werden soll, z.B. 281"
         //% num.loc.en="Number to be shown, e.g. 281"
         //% weight=40 blockGap=8
-        //% parts="MAX7219_7Seg" num.min=-999999999999999 num.max=9999999999999999 num.dflt=281
+        //% parts="MAX7219_7Seg" num.dflt=281
         showNumberWithLeadingZeros(num: number) {
             if (num < 0) {
                 this._registerForOne(0+1, 0x01,0) // '-' //+1 because the register address for digit 0 is 1, for digit 7 is 8
@@ -457,7 +457,7 @@ namespace MAX7219_7Seg {
         //% num.loc.de="Eine Zahl mit max. 4 Stellen, z.B. 1284"
         //% num.loc.en="is a number with max 4 digits, eg: 1284"
         //% weight=50 blockGap=8
-        //% parts="MAX7219_7Seg" num.min=-999999999999999 num.max=9999999999999999 num.dflt=1273
+        //% parts="MAX7219_7Seg" num.dflt=1273
         showNumber(num: number) {
 			//this.clear()			
 			let sign = 0
