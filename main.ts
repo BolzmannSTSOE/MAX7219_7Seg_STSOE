@@ -129,9 +129,11 @@ namespace MAX7219_7Seg {
 		
 	  /**
 	   * Reverse order options for a MAX7219 modules chain
+	   *
+	   * @param reversed Defines the counting direction of the displays, eg: true
 	   */
-	  //% block="Reverse printing order $reversed"
-	  //% block.loc.de="Reihenfolge der Displays umkehren $reversed"
+	  //% block="Reverse printing order %reversed"
+	  //% block.loc.de="Reihenfolge der Displays umkehren %reversed"
 	  //% jsdoc.loc.de="Konfiguriert die umgekehrte Reihenfolge, wenn mehrere Displays (MAX7219-Module) in einer Kette aneinandergehängt wurden."
 	  //% group="1. Setup" blockExternalInputs=true advanced=true
 	  reverseOrder(reversed: boolean) {	    
@@ -734,10 +736,10 @@ namespace MAX7219_7Seg {
 	 * Enter the number of display-modules at a chain and the Digital Pins you use for communication.
 	 * The MISO Pin is not used for this purpose.
      * @param numberModules the count of modules at a chain, eg: 1
-     * @param cs the CS pin for MAX7219, eg: DigitalPin.P16
-     * @param din the DIN pin for MAX7219, eg: DigitalPin.P17
-     * @param miso the MISO pin for MAX7219, eg: DigitalPin.P14
-     * @param clk the CLK pin for MAX7219, eg: DigitalPin.P15
+     * @param cs the CS pin for MAX7219, eg: DigitalPin.C16
+     * @param din the DIN pin for MAX7219, eg: DigitalPin.C17
+     * @param miso the MISO pin for MAX7219, eg: DigitalPin.C14
+     * @param clk the CLK pin for MAX7219, eg: DigitalPin.C15
      */
     //% weight=200 blockGap=8
     //% blockId="MAX7219_7Seg_create" block="Number of modules %numberModules|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
