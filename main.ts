@@ -152,7 +152,7 @@ namespace MAX7219_7Seg {
 	  }
 	
 	  /**
-	   * (internal function) write command and data to a specific MAX7219 (index 0=farthest on the chain)
+	   * (internal function) write command and data to a specific MAX7219 (index 0=closest on the chain)
 	   */
 	  _registerForOne(addressCode: number, data: number, displayIndex: number) {
 		if (this._reversed === true) displayIndex = this.numberModules-1 - displayIndex;
@@ -296,12 +296,12 @@ namespace MAX7219_7Seg {
 	  }
 	
 	  /**
-	   * Set brightness level of LEDs on a specific MAX7219s (index 0=farthest on the chain).
+	   * Set brightness level of LEDs on a specific MAX7219s (index 0=closest on the chain).
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
 	   */
 	  //% block="%display|Set brightness level %level on matrix index %index"
 	  //% block.loc.de="%display|Helligkeit %level auf dem Display mit Index %index setzen"
-	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am weitesten in der Kette entfernt. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
+	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am dichtesten in der Kette. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
 	  //% level.min=0 level.max=15 level.dflt=1 index.min=0 
 	  //% group="2. Brightness" advanced=true
 	  //% group.loc.de="2. Helligkeit"
@@ -687,8 +687,8 @@ namespace MAX7219_7Seg {
         //% g.loc.en="Segment g (middle)"
         //% pos.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
         //% pos.loc.en="Digit at display of MAX7219, e.g. 0 (most left)"
-        //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
-        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
+        //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = das dichteste Modul"
+        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = closest module"
         //% inlineInputMode=external
 		//% group="3. Control single digits" advanced=true
 		//% group.loc.de="3. Ansteuern einzelner Stellen"
@@ -775,8 +775,8 @@ namespace MAX7219_7Seg {
         //% num.loc.en="Number to be shown, e.g. 5"
         //% bit.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
         //% bit.loc.en="Digit position, e.g. 0 (most left)"
-        //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
-        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
+        //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = das dichteste Modul"
+        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = closest module"
 		//% group="3. Control single digits"
 		//% group.loc.de="3. Ansteuern einzelner Stellen"
         //% weight=50 blockGap=8
@@ -864,7 +864,7 @@ namespace MAX7219_7Seg {
 	  }
 	
 	  /**
-	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
+	   * Turn off LEDs on a specific MAX7219 (index 0=closest on the chain)
 	   */
 	  //% block="%display|Clear LEDs on matrix index %index"
 	  //% block.loc.de="%display|Lösche alle LEDs auf dem Display %index"
@@ -893,7 +893,7 @@ namespace MAX7219_7Seg {
 	  }
 	
 	  /**
-	   * Turn on LEDs randomly on a specific MAX7219 (index 0=farthest on the chain)
+	   * Turn on LEDs randomly on a specific MAX7219 (index 0=closest on the chain)
 	   */
 	  //% block="%display|Randomize LEDs on matrix index %index"
 	  //% block.loc.de="%display|LEDs zufällig auf dem Display mit Index %index einschalten"
