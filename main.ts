@@ -277,9 +277,9 @@ namespace MAX7219_7Seg {
 	 	 * @param pos Digit at display of MAX7219, eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="MAX7219_7Seg_segmentsAt" block="%display|segments a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
-        //% block.loc.de="%display|Einschalten der Segmente:| a %a b %b c %c d %d e %e f %f g %g|an der Stelle %pos|des Displays %displayIndex"
-        //% block.loc.en="%display|segments:| a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
+        //% blockId="MAX7219_7Seg_segmentsAt" block="$this(display)|segments a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
+        //% block.loc.de="$this(display)|Einschalten der Segmente:| a %a b %b c %c d %d e %e f %f g %g|an der Stelle %pos|des Displays %displayIndex"
+        //% block.loc.en="$this(display)|segments:| a %a b %b c %c d %d e %e f %f g %g|at %pos|of display %displayIndex"
         //% a.loc.de="Segment a (oben)"
         //% a.loc.en="Segment a (top)"
         //% b.loc.de="Segment b (rechts oben)"
@@ -339,11 +339,11 @@ namespace MAX7219_7Seg {
          * @param pos Digit position (0..count-1), eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
-        //% blockId="MAX7219_7Seg_lightsegmentsat" block="%display|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
+        //% blockId="MAX7219_7Seg_lightsegmentsat" block="$this(display)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
         //% jsdoc.loc.de="Zeigt Segmente über eine Bitmaske an (für Fortgeschrittene), z.B. 0b00110111 für H oder 0b00110011 für 4."
         //% jsdoc.loc.en="Lights segments using a bitmask (advanced)."
-        //% block.loc.de="%display|Einschalten der Segmente (binär) %segmentsText|der Stelle %pos|des Displays %displayIndex"
-        //% block.loc.en="%display|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
+        //% block.loc.de="$this(display)|Einschalten der Segmente (binär) %segmentsText|der Stelle %pos|des Displays %displayIndex"
+        //% block.loc.en="$this(display)|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
         //% segmentsText.loc.de="Segment-BitMaske (empfohlen binär), z.B. 0b1111111 für 8 oder 0b00110011 für 4"
         //% segmentsText.loc.en="Segment-bitmask (binary recommended), e.g. 0b1111111 for 8 or 0b00110011 for 4"
         //% pos.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
