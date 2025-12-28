@@ -757,7 +757,7 @@ namespace MAX7219_7Seg {
     //% numberModules.loc.de="Anzahl der Displays, z.B. 1"
     //% numberModules.loc.en="Count of display, eg: 1"
     //% inlineInputMode=inline count.min=1 count.dflt=1
-    //% blockSetVariable=display
+    //% blockSetVariable=display1
     export function create(numberModules: number = 1, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
         let display = new MAX7219_7Seg_obj(numberModules, cs, din, miso, clk);
         display.init();
