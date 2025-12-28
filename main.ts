@@ -71,15 +71,16 @@ namespace MAX7219_7Seg {
 
 		// Definition of index of modules, digits, buffer:
 		//
-		//          | <-- Start of Chain (Calliope)                                 End of Chain -->
-		//           -----------------------------------------------------------------------------
-		// Module:  |          0            |          1            |          2            | ...
-		//           -----------------------------------------------------------------------------
-		// Digit:   | 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| ...
-		//           -----------------------------------------------------------------------------
-		// Buffer:  | 0  1  2  3  4  5  6  7| 8  9 10 11 12 13 14 15|16 17 18 19 20 21 22 23| ...
-		//           -----------------------------------------------------------------------------
-		//
+		//          | <-- Start of Chain (Calliope)                         End of Chain -->|
+		//           -------------------------------------------------------------------------
+		// Module:  |          0            |          1            |          2            | 
+		//           -------------------------------------------------------------------------
+		// Digit:   | 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| 0  1  2  3  4  5  6  7| 
+		//           -------------------------------------------------------------------------
+		// Buffer:  | 0  1  2  3  4  5  6  7| 8  9 10 11 12 13 14 15|16 17 18 19 20 21 22 23| 
+		//           -------------------------------------------------------------------------
+		//          | 7  6  5  4  3  2  1  0| 7  6  5  4  3  2  1  0| 7  6  5  4  3  2  1  0|
+		//          |23 22 21 20 19 18 17 16|15 14 13 12 11 10  9  8| 7  6  5  4  3  2  1  0|
 
 
 		
@@ -96,15 +97,16 @@ namespace MAX7219_7Seg {
 		pins.digitalWritePin(this.cs, 0) // LOAD=LOW, start to receive commands
 		//control.waitMicros(MAX7219_PAUSE_TIME_US);
 		for (let i = 0; i < this.numberModules; i++) {
+		  if (addressCode > 0 && addressCode <= 8) {
+			  this.buf[i * this.count + addressCode - 1] = data //-1 because the register address for digit 0 is 1 .. for digit 7 is 8
+			  addressCode = 9 - addressCode // The order inside the MAX is vice versa
+		  }
 		  // when a MAX7219 received a new command/data set
 		  // the previous one would be pushed to the next matrix along the chain via DOUT
 		  pins.spiWrite(addressCode) // command (8 bits)
 		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
 		  pins.spiWrite(data) //data (8 bits)
 		  //control.waitMicros(MAX7219_PAUSE_TIME_US);
-		  if (addressCode > 0 && addressCode <= 8) {
-			  this.buf[i * this.count + addressCode - 1] = data //-1 because the register address for digit 0 is 1 .. for digit 7 is 8
-		  }
 		}
 		pins.digitalWritePin(this.cs, 1) // LOAD=HIGH, commands take effect
 		//control.waitMicros(MAX7219_PAUSE_TIME_US);
@@ -129,13 +131,14 @@ namespace MAX7219_7Seg {
 			// when a MAX7219 received a new command/data set
 			// the previous one would be pushed to the next matrix along the chain via DOUT
 			if (i == displayIndex) { // send change to target
+			  if (addressCode > 0 && addressCode <= 8) {
+				  this.buf[i * this.count + addressCode - 1] = data //-1 because the register address for digit 0 is 1 .. for digit 7 is 8
+				  addressCode = 9 - addressCode // The order inside the MAX is vice versa
+			  }
 			  pins.spiWrite(addressCode) // command (8 bits)
 			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
 			  pins.spiWrite(data) //data (8 bits)
 			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
-			  if (addressCode > 0 && addressCode <= 8) {
-				  this.buf[i * this.count + addressCode - 1] = data //-1 because the register address for digit 0 is 1 .. for digit 7 is 8
-			  }
 			} else { // do nothing to non-targets
 			  pins.spiWrite(_NOOP)
 			  //control.waitMicros(MAX7219_PAUSE_TIME_US);
@@ -264,14 +267,14 @@ namespace MAX7219_7Seg {
 		* Send 'Error' to the MAX7219, or at least as many digits as possible.
 		*/
 		_errorHandling() {			
-			let ErrorMask = [0b1111001, 0b1010000, 0b1010000, 0b1011100, 0b1010000];
+			let ErrorMask = [0b1001111, 0b0000101, 0b0000101, 0b0011101, 0b0000101];
 			let counttmp = 0
 			for (let i = 0; i < Math.min(this.count,5); i++) {
-				this._registerAll(i+1, ErrorMask[i])
+				this._registerAll(this._getDigitIndex(i)+1, ErrorMask[i])
 				counttmp++
 			}
 			for (let i = counttmp; i < this.count; i++) {
-				this._registerAll(i+1, 0)
+				this._registerAll(this._getDigitIndex(i)+1, 0)
 			}
 		}
         
@@ -506,8 +509,8 @@ namespace MAX7219_7Seg {
 		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
 		*/
 		_getDigitIndex(num: number) {
-			return (num % this.count)
-			//return (this.count-1 - (num % this.count))
+			//return (num % this.count)
+			return (this.count-1 - (num % this.count))
 		}
 		/* 
 		* (internal) Helps to find the display index by given digit of the decimal number.
