@@ -160,7 +160,10 @@ namespace MAX7219_7Seg {
 	  //% block="%display|Reverse printing order %reversed"
 	  //% block.loc.de="%display|Reihenfolge der Displays umkehren %reversed"
 	  //% jsdoc.loc.de="Konfiguriert die umgekehrte Reihenfolge, wenn mehrere Displays (MAX7219-Module) in einer Kette aneinandergehängt wurden."
-	  //% group="1. Setup" blockExternalInputs=true advanced=true
+	  //% blockExternalInputs=true
+	  //% group="1. Setup" advanced=true
+	  //% group.loc.de="1. Setup"
+	  //% weight=95
       //% parts="MAX7219_7Seg" reversed.dflt=true
 	  reverseOrder(reversed: boolean) {	    
 	    this._reversed = reversed
@@ -175,9 +178,11 @@ namespace MAX7219_7Seg {
 	   */
 	  //% block="%display|Set all brightness level %level"
 	  //% block.loc.de="%display|Helligkeit aller Displays auf %level setzen"
-      //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit aller Displays ein (0 = dunkel, 15 = sehr hell). ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
-	  //% level.min=0 level.max=15 level.dflt=1 group="3. Basic light control"
+	  //% level.min=0 level.max=15 level.dflt=1 
+	  //% group="2. Brightness" advanced=true
+	  //% group.loc.de="2. Helligkeit"
+      //% weight=70 blockGap=8
       //% parts="MAX7219_7Seg"
 	  brightnessAll(level: number) {
 		this._registerAll(_INTENSITY, level)
@@ -189,9 +194,11 @@ namespace MAX7219_7Seg {
 	   */
 	  //% block="%display|Set brightness level %level on matrix index %index"
 	  //% block.loc.de="%display|Helligkeit %level auf dem Display mit Index %index setzen"
-      //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am weitesten in der Kette entfernt. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
-	  //% level.min=0 level.max=15 level.dflt=1 index.min=0 group="3. Basic light control" advanced=true
+	  //% level.min=0 level.max=15 level.dflt=1 index.min=0 
+	  //% group="2. Brightness" advanced=true
+	  //% group.loc.de="2. Helligkeit"
+      //% weight=60 blockGap=8
       //% parts="MAX7219_7Seg"
 	  brightnessForOne(level: number, index: number) {
 		this._registerForOne(_INTENSITY, level, index)
@@ -205,7 +212,9 @@ namespace MAX7219_7Seg {
 	  //% block="%display|Fill all LEDs"
 	  //% block.loc.de="%display|Alle LEDs einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs ein."
-	  //% group="3. Basic light control"
+	  //% group="4. Control all digits of all displays"
+	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
+	  //% weight=30 blockGap=8
       //% parts="MAX7219_7Seg"
 	  fillAll() {
 	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 255)
@@ -217,7 +226,10 @@ namespace MAX7219_7Seg {
 	  //% block="%display|Fill LEDs on matrix index %index"
 	  //% block.loc.de="%display|Alle LEDs auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
-	  //% index.min=0 group="3. Basic light control" advanced=true
+	  //% index.min=0
+	  //% group="4. Control all digits of a single displays" advanced=true
+	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
+	  //% weight=30 blockGap=8
       //% parts="MAX7219_7Seg"
 	  fillForOne(index: number) {
 	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 255, index)
@@ -229,7 +241,9 @@ namespace MAX7219_7Seg {
 	  //% block="%display|Clear all LEDs"
 	  //% block.loc.de="%display|Alle LEDs löschen"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs aus."
-	  //% group="3. Basic light control"
+	  //% group="4. Control all digits of all displays"
+	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
+      //% weight=20 blockGap=8
       //% parts="MAX7219_7Seg"
 	  clearAll() {
 	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, 0)
@@ -241,7 +255,10 @@ namespace MAX7219_7Seg {
 	  //% block="%display|Clear LEDs on matrix index %index"
 	  //% block.loc.de="%display|Lösche alle LEDs auf dem Display %index"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
-	  //% index.min=0 group="3. Basic light control" advanced=true
+	  //% index.min=0 
+	  //% group="4. Control all digits of a single displays" advanced=true
+	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
+	  //% weight=20 blockGap=8
       //% parts="MAX7219_7Seg"
 	  clearForOne(index: number) {
 	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, 0, index)
@@ -253,7 +270,9 @@ namespace MAX7219_7Seg {
 	  //% block="%display|Randomize all LEDs"
 	  //% block.loc.de="%display|LEDs auf allen Displays zufällig einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays zufällig verteilte LEDs ein."
-	  //% group="3. Basic light control"
+	  //% group="4. Control all digits of all displays"
+	  //% group.loc.de="4. Ansteuern aller Stellen aller Displays"
+	  //% weight=10 blockGap=8
       //% parts="MAX7219_7Seg"
 	  randomizeAll() {
 	    for (let i = 0; i < this.count; i++) this._registerAll(i+1, Math.randomRange(0, 255))
@@ -265,7 +284,10 @@ namespace MAX7219_7Seg {
 	  //% block="%display|Randomize LEDs on matrix index %index"
 	  //% block.loc.de="%display|LEDs zufällig auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
-	  //% index.min=0 group="3. Basic light control" advanced=true
+	  //% index.min=0 
+	  //% group="4. Control all digits of a single displays" advanced=true
+	  //% group.loc.de="4. Ansteuern aller Stellen eines Displays"
+	  //% weight=10 blockGap=8
       //% parts="MAX7219_7Seg"
 	  randomizeForOne(index: number) {
 	    for (let i = 0; i < this.count; i++) this._registerForOne(i+1, Math.randomRange(0, 255), index)
@@ -334,7 +356,9 @@ namespace MAX7219_7Seg {
         //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
         //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
         //% inlineInputMode=external
-        //% weight=90 blockGap=8 advanced=true
+		//% group="3. Control single digits" advanced=true
+		//% group.loc.de="3. Ansteuern einzelner Stellen"
+        //% weight=50 blockGap=8
         //% parts="MAX7219_7Seg" pos.min=0 pos.max=3 pos.dflt=0 displayIndex.min=0 displayIndex.dflt=0
         segmentsAt(a: boolean, b: boolean, c: boolean, d: boolean, e: boolean, f: boolean, g: boolean, pos: number = 0, displayIndex: number = 0) {
             let mask = 0
@@ -375,17 +399,18 @@ namespace MAX7219_7Seg {
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
         //% blockId="MAX7219_7Seg_lightsegmentsat" block="%display|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
-        //% jsdoc.loc.de="Zeigt Segmente über eine Bitmaske an (für Fortgeschrittene), z.B. 0b00110111 für H oder 0b00110011 für 4."
+        //% jsdoc.loc.de="Zeigt Segmente über eine Bitmaske an (für Fortgeschrittene), z.B. 0b0110111 für H oder 0b0110011 für 4."
         //% jsdoc.loc.en="Lights segments using a bitmask (advanced)."
         //% block.loc.de="%display|Einschalten der Segmente (binär) %segmentsText|der Stelle %pos|des Displays %displayIndex"
         //% block.loc.en="%display|light segments (bits) %segmentsText|at %pos|of display %displayIndex"
-        //% segmentsText.loc.de="Segment-BitMaske (empfohlen binär), z.B. 0b1111111 für 8 oder 0b00110011 für 4"
-        //% segmentsText.loc.en="Segment-bitmask (binary recommended), e.g. 0b1111111 for 8 or 0b00110011 for 4"
+        //% segmentsText.loc.de="Segment-BitMaske (empfohlen binär), z.B. 0b1111111 für 8 oder 0b0110011 für 4"
+        //% segmentsText.loc.en="Segment-bitmask (binary recommended), e.g. 0b1111111 for 8 or 0b0110011 for 4"
         //% pos.loc.de="Stelle im Display des MAX7219, z.B. 0 (ganz links)"
         //% pos.loc.en="Digit position (0..count-1)"
         //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
-        //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
-        //% weight=80 blockGap=8 advanced=true
+		//% group="3. Control single digits" advanced=true
+		//% group.loc.de="3. Ansteuern einzelner Stellen"
+        //% weight=40 blockGap=8
 		//% parts="MAX7219_7Seg" segmentsText.dflt="0b0110111" pos.min=0 pos.max=3 pos.dflt=0 displayIndex.min=0 displayIndex.dflt=0
         //% segmentsText.shadow="text"
         lightSegmentsAt(segmentsText: string = "0b0110111", pos: number = 0, displayIndex: number = 0) {
@@ -402,7 +427,7 @@ namespace MAX7219_7Seg {
 
         
         /**
-         * show a number in given position.
+         * Show a number in given position. Number = -1 clears this position.
          * @param num Number to be shown, eg: 5
          * @param bit Digit position, eg: 0
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
@@ -418,8 +443,10 @@ namespace MAX7219_7Seg {
         //% bit.loc.en="Digit position, e.g. 0 (most left)"
         //% displayIndex.loc.de="Display-Nummer innerhalb einer MAX7219-Kette, z.B. 0 = am weitesten entferntes Modul"
         //% displayIndex.loc.en="Display index of MAX7219, e.g. 0 = farthest module"
-        //% weight=60 blockGap=8
-        //% parts="MAX7219_7Seg" num.min=0 num.max=15 num.dflt=5 bit.min=0 bit.dflt=0 displayIndex.min=0 displayIndex.dflt=0
+		//% group="3. Control single digits"
+		//% group.loc.de="3. Ansteuern einzelner Stellen"
+        //% weight=50 blockGap=8
+        //% parts="MAX7219_7Seg" num.min=-1 num.max=15 num.dflt=5 bit.min=0 bit.dflt=0 displayIndex.min=0 displayIndex.dflt=0
         showbit(num: number = 5, bit: number = 0, displayIndex: number = 0) {
 			// bei num=-1 wird das Digit ausgeschaltet
 		    if (num < 0) {
@@ -442,7 +469,9 @@ namespace MAX7219_7Seg {
         //% block.loc.en="%display|show number %num with leading zeros"
         //% num.loc.de="Zahl, die angezeigt werden soll, z.B. 281"
         //% num.loc.en="Number to be shown, e.g. 281"
-        //% weight=40 blockGap=8
+		//% group="2. Numbers"
+		//% group.loc.de="2. Zahlen"
+        //% weight=80 blockGap=8
         //% parts="MAX7219_7Seg" num.dflt=281
 		showNumberWithLeadingZeros(num: number) {
 		    const totalDigits = this.numberModules * this.count
@@ -547,7 +576,7 @@ namespace MAX7219_7Seg {
         /**
           * show a number with max 4 digits. 
           * @param num is a number with max 4 digits, eg: 1284
-	*/
+		*/
         //% blockId="MAX7219_7Seg_shownum" block="%display|show number %num"
         //% jsdoc.loc.de="Zeigt eine Zahl auf dem Display an."
         //% jsdoc.loc.en="Shows a number on the display."
@@ -555,7 +584,9 @@ namespace MAX7219_7Seg {
         //% block.loc.en="%display|show number %num"
         //% num.loc.de="Eine Zahl mit max. 4 Stellen, z.B. 1284"
         //% num.loc.en="is a number with max 4 digits, eg: 1284"
-        //% weight=50 blockGap=8
+		//% group="2. Numbers"
+		//% group.loc.de="2. Zahlen"
+        //% weight=90 blockGap=8
         //% parts="MAX7219_7Seg" num.dflt=1273
 		showNumber(num: number) {
 			if (isNaN(num) || num === null || num === undefined) {
@@ -631,40 +662,11 @@ namespace MAX7219_7Seg {
 			if (posDP >= 0) { this.showDP(this._getDigitIndex(posDP), this._getDisplayIndex(posDP), true) }
 		}
 
-		/*
-        showNumber(num: number) {
-			//this.clear()			
-			let sign = 0
-            if (num < 0) {
-				sign = -1
-                num = -num
-            }
-			for (let i = 0; i < this.numberModules * this.count; i++) {
-				if (num >= 10**i) this.showbit(Math.idiv(num, 10**i) % 10, this._getDigitIndex(i), this._getDisplayIndex(i)); 
-				else this.showbit(-1, this._getDigitIndex(i), this._getDisplayIndex(i));
-			}
-			if (num == 0) this.showbit(0, this.count-1, this.numberModules-1)
-            if (sign < 0) {
-                this._registerForOne(this._getDigitIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))+1, 0x01, this._getDisplayIndex(Math.min((this.numberModules*this.count)-1, Math.abs(num).toString().length))) // 0x01 = '-'   //+1 because the register address for digit 0 is 1 .. for digit 7 is 8
-            }
-			*/
-			/*
-			for (let i = 0; i < this.count; i++) {
-				if (num >= 10**i) this.showbit(Math.idiv(num, 10**i) % 10, this.count-1-i); 
-				else this.showbit(-1, this.count-1-i);
-			}
-			if (num == 0) this.showbit(0, this.count-1)
-            if (sign < 0) {
-                this._dat(3 - Math.min(3, Math.abs(num).toString().length), 0x40) // '-'
-            }
-			
-		}
-	*/
 
         /**
           * show a hex number. 
           * @param numText a hex number, eg: 0xA7F
-	*/
+		*/
         //% blockId="MAX7219_7Seg_showhex" block="%display|show hex number %numText"
         //% jsdoc.loc.de="Zeigt eine Zahl im Hex-Format (0–F) an, z.B. 0xA734E."
         //% jsdoc.loc.en="Shows a number in hex (0–F), eg. 0xA734E."
@@ -672,7 +674,9 @@ namespace MAX7219_7Seg {
         //% block.loc.en="%display|show hex number %numText"
         //% numText.loc.de="Eine Hexadezimalzahl, z.B. 0xA7F"
         //% numText.loc.en="a hex number, eg: 0xA7F"
-        //% weight=30 blockGap=8
+		//% group="2. Numbers"
+		//% group.loc.de="2. Zahlen"
+        //% weight=70 blockGap=8
         //% parts="MAX7219_7Seg"
 		//% numText.shadow="text"
 		showHex(numText: string) {
@@ -744,24 +748,6 @@ namespace MAX7219_7Seg {
 		    }
 		}
 
-		/*
-        showHex(numText: string) {
-		    const totalDigits = this.numberModules * this.count
-		    const maxSafeHexDigits = 13 // if bigger than 16^13 the handling of integers is not safe (max = 2^53-1)
-		    const maxHexDigits = Math.min(totalDigits, maxSafeHexDigits)
-		
-            let num = parseHexText(numText, maxHexDigits)
-			if (num == -1) {
-				this._errorHandling()
-				return;
-			}
-			
-			for (let i = totalDigits -1; i >= 0; i--) {
-				if (num > 16**i) this.showbit(Math.idiv(num, 16**i) % 16, this._getDigitIndex(i), this._getDisplayIndex(i));
-				else this.showbit(-1, this._getDigitIndex(i), this._getDisplayIndex(i));
-			}
-        }
-		*/
 
 	  /**
 	   * Show a random number defined by minimum and maximum.
@@ -771,7 +757,9 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|Zeige Zufallszahl Min = %numMin Max = %numMax"
 	  //% jsdoc.loc.de="Zeigt eine Zufallszahl von Minimum bis Maximum."
 	  //% numMin.min=-100000000000000 numMin.max=100000000000000 numMax.min=-100000000000000 numMax.max=100000000000000
-	  //% group="3. Basic light control" advanced=true
+	  //% group="2. Numbers"
+	  //% group.loc.de="2. Zahlen"
+	  //% weight=60 blockGap=8
 	  showRandomNumber(numMin: number, numMax: number) {
 	    let totalDigits = this.numberModules * this.count
 	    let maxDigits = Math.min(totalDigits, 15)
@@ -802,7 +790,7 @@ namespace MAX7219_7Seg {
          * @param bit is the position on a display, eg: 1
          * @param displayIndex is the display index, eg: 0
          * @param show is show/hide dp, eg: true
-	*/
+		*/
         //% blockId="MAX7219_7Seg_showDP" block="%display|DotPoint at digit %bit|of Display %displayIndex|show %show"
         //% jsdoc.loc.de="Schaltet den Dezimalpunkt (oder Doppelpunkt) ein oder aus."
         //% jsdoc.loc.en="Shows or hides the dot point."
@@ -814,7 +802,9 @@ namespace MAX7219_7Seg {
         //% displayIndex.loc.en="The Display the point has to be shown on, eg: 0"
         //% show.loc.de="EIN = Wahr, AUS = Falsch"
         //% show.loc.en="is show/hide dp, eg: true"
-        //% weight=20 blockGap=8
+		//% group="3. Control single digits"
+		//% group.loc.de="3. Ansteuern einzelner Stellen"
+        //% weight=40 blockGap=8
         //% parts="MAX7219_7Seg"
         showDP(bit: number = 1, displayIndex: number = 0, show: boolean = true) {
             bit = bit % this.count
@@ -826,11 +816,13 @@ namespace MAX7219_7Seg {
         /**
          * Turn on all display modules. 
          */
-        //% blockId="MAX7219_7Seg_on" block="turn on %display"
-        //% jsdoc.loc.de="Schaltet das Display ein."
+        //% blockId="MAX7219_7Seg_on" block="%display|turn on all displays"
+        //% jsdoc.loc.de="Schaltet alle Displays einer Kette ein."
         //% jsdoc.loc.en="Turns the display on."
-        //% block.loc.de="Schalte das Display %display ein."
-        //% block.loc.en="turn on %display"
+        //% block.loc.de="%display|Schalte alle Displays ein."
+        //% block.loc.en="%display|turn on all displays"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
         //% weight=90 blockGap=8
         //% parts="MAX7219_7Seg"
         on() {
@@ -838,17 +830,54 @@ namespace MAX7219_7Seg {
         }
 
         /**
-         * turn off LED. 
+         * Turn off the module. The registers can be accessed in off mode, but they take effect when the module is turned on again.
          */
-        //% blockId="MAX7219_7Seg_off" block="turn off %display"
-        //% jsdoc.loc.de="Schaltet das Display aus."
-        //% jsdoc.loc.en="Turns the display off."
-        //% block.loc.de="Schalte das Display %display aus."
-        //% block.loc.en="turn off %display"
+        //% blockId="MAX7219_7Seg_off" block="%display|turn off all displays"
+        //% jsdoc.loc.de="Schaltet alle Displays einer Kette aus. Display kann im ausgeschalteten Zustand beschrieben werden, aber erst nach dem Wiedereinschalten werden die Zahlen sichtbar."
+        //% jsdoc.loc.en="Turns the display off. The registers can be accessed in off mode, but they take effect when the module is turned on again."
+        //% block.loc.de="%display|Schalte alle Displays aus."
+        //% block.loc.en="%display|turn off all displays"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
         //% weight=80 blockGap=8
         //% parts="MAX7219_7Seg"
         off() {
             this._registerAll(_SHUTDOWN,0);			
+        }      
+		
+    
+	
+
+        /**
+         * Turn on a single module in a chain of modules. 
+         */
+        //% blockId="MAX7219_7Seg_onForOne" block="%display|turn on display %displayIndex"
+        //% jsdoc.loc.de="Schaltet ein Display einer Kette ein."
+        //% jsdoc.loc.en="Turns the display on."
+        //% block.loc.de="%display|Schalte das Displays %displayIndex ein."
+        //% block.loc.en="%display|turn on display %displayIndex"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
+        //% weight=76 blockGap=8
+        //% parts="MAX7219_7Seg"
+        onForOne(displayIndex: number = 0) {
+            this._registerForOne(_SHUTDOWN,1,displayIndex);
+        }
+
+        /**
+         * Turn off a single module in a chain of modules. 
+         */
+        //% blockId="MAX7219_7Seg_offForOne" block="%display|turn off display %displayIndex"
+        //% jsdoc.loc.de="Schaltet ein einzelnes Display einer Kette aus."
+        //% jsdoc.loc.en="Turns off a single display of a chain."
+        //% block.loc.de="%display|Schalte das Display %displayIndex aus."
+        //% block.loc.en="%display|turn off display %displayIndex"
+		//% group="1. Setup" advanced=true
+		//% group.loc.de="1. Setup"
+        //% weight=73 blockGap=8
+        //% parts="MAX7219_7Seg"
+        offForOne(displayIndex: number = 0) {
+            this._registerForOne(_SHUTDOWN,0,displayIndex);			
         }      
 		
     }
@@ -1001,7 +1030,6 @@ namespace MAX7219_7Seg {
      * @param miso the MISO pin for MAX7219, eg: DigitalPin.C14
      * @param clk the CLK pin for MAX7219, eg: DigitalPin.C15
      */
-    //% weight=200 blockGap=8
     //% blockId="MAX7219_7Seg_create" block="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
     //% block.loc.de="Anzahl der Displays %numberModules|Anzahl der Stellen pro Modul %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
     //% block.loc.en="Number of modules %numberModules|Digits per module %countDigits|CS %cs|DIN %din|MISO (not used) %miso|CLK %clk"
@@ -1020,6 +1048,9 @@ namespace MAX7219_7Seg {
     //% countDigits.loc.en="Count of digits per display, eg: 8"
 	//% countDigits.min=1 countDigits.dflt=8 numberModules.min=1 numberModules.dflt=1
 	//% blockExternalInputs=true
+	//% group="1. Setup"
+	//% group.loc.de="1. Setup"
+    //% weight=100 blockGap=8
     //% blockSetVariable=display
     export function create(numberModules: number = 1, countDigits: number = 8, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
         let display = new MAX7219_7Seg_obj(numberModules, countDigits, cs, din, miso, clk);
