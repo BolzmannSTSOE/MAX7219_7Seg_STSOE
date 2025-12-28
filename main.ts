@@ -506,7 +506,8 @@ namespace MAX7219_7Seg {
 		* Beispiel: In der Zahl 34567 ist für die 7 num=0, für die 3 ist num=4.
 		*/
 		_getDigitIndex(num: number) {
-			return (this.count-1 - (num % this.count))
+			return (num % this.count)
+			//return (this.count-1 - (num % this.count))
 		}
 		/* 
 		* (internal) Helps to find the display index by given digit of the decimal number.
@@ -728,21 +729,22 @@ namespace MAX7219_7Seg {
 
         /**
          * clear LED. 
+		 * 
+		 * @param displayIndex Index of display, eg:0
          */
-        //% blockId="MAX7219_7Seg_clear" block="clear all digits of %display"
-        //% jsdoc.loc.de="Löscht die Anzeige (alle Segmente aus)."
-        //% jsdoc.loc.en="Clears the display (all segments off)."
-        //% block.loc.de="Lösche alle Stellen des Displays %display"
-        //% block.loc.en="clear all digits of %display"
+        //% blockId="MAX7219_7Seg_clear" block="%display|clear all digits of %displayIndex"
+        //% jsdoc.loc.de="Löscht die Anzeige (alle Segmente aus) eines bestimmten Displays (Moduls)."
+        //% jsdoc.loc.en="Clears the display (all segments off) of a single module."
+        //% block.loc.de="%display|Lösche alle Stellen des Displays %displayIndex"
+        //% block.loc.en="%display|clear all digits of %displayIndex"
         //% weight=10 blockGap=8
-        //% parts="MAX7219_7Seg"
-        clear() {
-			for (let m = 0; m < this.numberModules; m++) {
+        //% parts="MAX7219_7Seg" displayIndex.min=0 displayIndex.dflt=0
+        clear(displayIndex: number = 0) {
 	            for (let i = 0; i < this.count; i++) {
-	                this._registerForOne(i+1, 0, m)
+	                this._registerForOne(i+1, 0, displayIndex)
 	                //this.buf[m * this.count + i] = 0
 	            }
-			}
+			
         }
 
         /**
@@ -915,6 +917,7 @@ namespace MAX7219_7Seg {
      * Create a Digit Display (MAX7219) object.
 	 * Enter the number of display-modules at a chain and the Digital Pins you use for communication.
 	 * The MISO Pin is not used for this purpose.
+	 * 
      * @param numberModules the count of modules at a chain, eg: 1
      * @param countDigits the count of digits at a display, eg: 8
      * @param cs the CS pin for MAX7219, eg: DigitalPin.C16
@@ -939,7 +942,8 @@ namespace MAX7219_7Seg {
     //% numberModules.loc.en="Count of display, eg: 1"
     //% countDigits.loc.de="Anzahl der Stellen pro Display, z.B. 8"
     //% countDigits.loc.en="Count of digits per display, eg: 8"
-    //% inlineInputMode=inline countDigits.min=1 countDigits.dflt=8 numberModules.min=1 numberModules.dflt=1
+	//% countDigits.min=1 countDigits.dflt=8 numberModules.min=1 numberModules.dflt=1
+	//% blockExternalInputs=true
     //% blockSetVariable=display
     export function create(numberModules: number = 1, countDigits: number = 8, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
         let display = new MAX7219_7Seg_obj(numberModules, countDigits, cs, din, miso, clk);
