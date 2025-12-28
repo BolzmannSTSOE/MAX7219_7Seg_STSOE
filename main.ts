@@ -1,12 +1,10 @@
 /**
-* makecode Four Digit Display (MAX7219) Package.
-* From microbit/micropython Chinese community.
-* http://www.micropython.org.cn
+* makecode Eight Digit 7-Segment Display (MAX7219) Package.
 * Forked and extended by Andy Bolzmann.
 */
 
 /**
- * Four Digit Display
+ * Eight Digit Display
  */
 //% weight=100 color=#506D19 icon="7"
 namespace MAX7219_7Seg {
