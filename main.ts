@@ -521,6 +521,18 @@ namespace MAX7219_7Seg {
 			*/
         }
 
+	  /**
+	   * Show a random number defined by minimum and maximum.
+	   */
+	  //% block="%display|Show random number Min = %numMin Max = %numMax"
+	  //% block.loc.de="%display|Zeige Zufallszahl Min = %numMin Max = %numMax"
+	  //% jsdoc.loc.de="Zeigt eine Zufallszahl von Minimum bis Maximum."
+	  //% index.min=0 group="3. Basic light control" advanced=true
+	  showRandomNumber(numMin: number, numMax: number) {
+		  this.showNumber(Math.randomRange(numMin, numMax));
+	  }
+
+		
         /**
          * show or hide dot point. 
          * @param bit is the position on a display, eg: 1
