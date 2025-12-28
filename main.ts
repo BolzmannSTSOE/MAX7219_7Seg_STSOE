@@ -454,6 +454,14 @@ namespace MAX7219_7Seg {
 		    }
 		
 		    let str = num.toString()
+
+			// auf Komma (Dezimalpunkt) überprüfen
+			let indexDP = str.indexOf(".")
+			let posDP = -1
+			if (indexDP >= 0) {
+				posDP = totalDigits - (str.length - indexDP) // Position of DP in buffer-Index
+				str = str.replace(".", "")
+			}
 		
 		    // falls mehr Ziffern als Stellen → nur rechte totalDigits Stellen behalten
 		    if (str.length > totalDigits) {
@@ -491,6 +499,9 @@ namespace MAX7219_7Seg {
 		            this._getDisplayIndex(minusPos)
 		        )
 		    }
+
+			// Dezimalpunkt, falls vorhanden:
+			if (posDP >= 0) { this.showDP(this._getDigitIndex(posDP), this._getDisplayIndex(posDP), true) }
 		}
 
 		/*
@@ -561,6 +572,14 @@ namespace MAX7219_7Seg {
 		    }
 		
 		    let str = num.toString()
+
+			// auf Komma (Dezimalpunkt) überprüfen
+			let indexDP = str.indexOf(".")
+			let posDP = -1
+			if (indexDP >= 0) {
+				posDP = totalDigits - (str.length - indexDP) // Position of DP in buffer-Index
+				str = str.replace(".", "")
+			}
 		
 		    // falls mehr Ziffern als Stellen → nur rechte totalDigits Stellen behalten
 		    if (str.length > totalDigits) {
@@ -607,6 +626,9 @@ namespace MAX7219_7Seg {
 		            this._getDisplayIndex(minusPos)
 		        )
 		    }
+
+			// Dezimalpunkt, falls vorhanden:
+			if (posDP >= 0) { this.showDP(this._getDigitIndex(posDP), this._getDisplayIndex(posDP), true) }
 		}
 
 		/*
