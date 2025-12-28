@@ -8,7 +8,7 @@
 /**
  * Four Digit Display
  */
-//% weight=100 color=#006d19 icon="7"
+//% weight=100 color=#506D19 icon="7"
 namespace MAX7219_7Seg {
 	
   //Registers (command) for MAX7219
