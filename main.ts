@@ -133,7 +133,7 @@ namespace MAX7219_7Seg {
 	   * @param reversed Defines the counting direction of the displays, eg: true
 	   */
 	  //% block="%display|Reverse printing order %reversed"
-	  //% block.loc.de="Reihenfolge der Displays umkehren %reversed"
+	  //% block.loc.de="%display|Reihenfolge der Displays umkehren %reversed"
 	  //% jsdoc.loc.de="Konfiguriert die umgekehrte Reihenfolge, wenn mehrere Displays (MAX7219-Module) in einer Kette aneinandergehängt wurden."
 	  //% group="1. Setup" blockExternalInputs=true advanced=true
 	  reverseOrder(reversed: boolean) {	    
@@ -146,7 +146,7 @@ namespace MAX7219_7Seg {
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
 	   */
 	  //% block="%display|Set all brightness level %level"
-	  //% block.loc.de="Helligkeit aller Displays auf %level setzen"
+	  //% block.loc.de="%display|Helligkeit aller Displays auf %level setzen"
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit aller Displays ein (0 = dunkel, 15 = sehr hell). ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
 	  //% level.min=0 level.max=15 level.defl=1 group="3. Basic light control"
@@ -159,7 +159,7 @@ namespace MAX7219_7Seg {
 	   * WARNING: At an intensity level of 7 or higher, SPI data transfer may become corrupted, which can lead to incorrect patterns on the display.
 	   */
 	  //% block="%display|Set brightness level %level on matrix index %index"
-	  //% block.loc.de="Helligkeit %level auf dem Display mit Index %index setzen"
+	  //% block.loc.de="%display|Helligkeit %level auf dem Display mit Index %index setzen"
       //% weight=70 blockGap=8
 	  //% jsdoc.loc.de="Stellt die LED-Helligkeit eines einzelnen Displays ein (0 = dunkel, 15 = sehr hell). Index 0 ist am weitesten in der Kette entfernt. ACHTUNG: Bei einem Helligkeitslevel von 7 oder höher kann es zu Übertragungsfehlern kommen, was zu fehlerhaften Anzeigen auf dem Display führen kann!"
 	  //% level.min=0 level.max=15 level.defl=1 index.min=0 group="3. Basic light control" advanced=true
@@ -173,7 +173,7 @@ namespace MAX7219_7Seg {
 	   * Turn on all LEDs on all MAX7219s
 	   */
 	  //% block="%display|Fill all LEDs"
-	  //% block.loc.de="Alle LEDs einschalten"
+	  //% block.loc.de="%display|Alle LEDs einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs ein."
 	  //% group="3. Basic light control"
 	  fillAll() {
@@ -184,7 +184,7 @@ namespace MAX7219_7Seg {
 	   * Turn on LEDs on a specific MAX7219
 	   */
 	  //% block="%display|Fill LEDs on matrix index %index"
-	  //% block.loc.de="Alle LEDs auf dem Display mit Index %index einschalten"
+	  //% block.loc.de="%display|Alle LEDs auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
 	  fillForOne(index: number) {
@@ -195,7 +195,7 @@ namespace MAX7219_7Seg {
 	   * Turn off LEDs on all MAX7219s
 	   */
 	  //% block="%display|Clear all LEDs"
-	  //% block.loc.de="Alle LEDs löschen"
+	  //% block.loc.de="%display|Alle LEDs löschen"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays alle LEDs aus."
 	  //% group="3. Basic light control"
 	  clearAll() {
@@ -206,7 +206,7 @@ namespace MAX7219_7Seg {
 	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
 	   */
 	  //% block="%display|Clear LEDs on matrix index %index"
-	  //% block.loc.de="LEDs auf dem Display mit Index %index löschen"
+	  //% block.loc.de="%display|LEDs auf dem Display mit Index %index löschen"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
 	  //% index.min=0 group="3. Basic light control" advanced=true
 	  clearForOne(index: number) {
@@ -217,7 +217,7 @@ namespace MAX7219_7Seg {
 	   * Turn on LEDs randomly on all MAX7219s
 	   */
 	  //% block="%display|Randomize all LEDs"
-	  //% block.loc.de="LEDs auf allen Displays zufällig einschalten"
+	  //% block.loc.de="%display|LEDs auf allen Displays zufällig einschalten"
 	  //% jsdoc.loc.de="Schaltet auf allen Displays zufällig verteilte LEDs ein."
 	  //% group="3. Basic light control"
 	  randomizeAll() {
@@ -228,7 +228,7 @@ namespace MAX7219_7Seg {
 	   * Turn on LEDs randomly on a specific MAX7219 (index 0=farthest on the chain)
 	   */
 	  //% block="%display|Randomize LEDs on matrix index %index"
-	  //% block.loc.de="LEDs zufällig auf dem Display mit Index %index einschalten"
+	  //% block.loc.de="%display|LEDs zufällig auf dem Display mit Index %index einschalten"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display zufällig verteilte LEDs ein."
 	  //% index.min=0 group="3. Basic light control" advanced=true
 	  randomizeForOne(index: number) {
@@ -757,7 +757,7 @@ namespace MAX7219_7Seg {
     //% numberModules.loc.de="Anzahl der Displays, z.B. 1"
     //% numberModules.loc.en="Count of display, eg: 1"
     //% inlineInputMode=inline count.min=1 count.dflt=1
-    //% blockSetVariable=display1
+    //% blockSetVariable=display
     export function create(numberModules: number = 1, cs: DigitalPin, din: DigitalPin, miso: DigitalPin, clk: DigitalPin): MAX7219_7Seg_obj {
         let display = new MAX7219_7Seg_obj(numberModules, cs, din, miso, clk);
         display.init();
