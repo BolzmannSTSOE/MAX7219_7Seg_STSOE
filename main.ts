@@ -622,8 +622,9 @@ namespace MAX7219_7Seg {
             if (sign < 0) {
                 this._dat(3 - Math.min(3, Math.abs(num).toString().length), 0x40) // '-'
             }
-			*/
-        }
+			
+		}
+	*/
 
         /**
           * show a hex number. 
@@ -641,7 +642,7 @@ namespace MAX7219_7Seg {
 		//% numText.shadow="text"
         showHex(numText: string) {
 		    const totalDigits = this.numberModules * this.count
-		    const maxSafeHexDigits = 13 // if bigger than 16^13 the handling of integers is not safe (max = 2^53-1)/**
+		    const maxSafeHexDigits = 13 // if bigger than 16^13 the handling of integers is not safe (max = 2^53-1)
 		    const maxHexDigits = Math.min(totalDigits, maxSafeHexDigits)
 		
             let num = parseHexText(numText, maxHexDigits)
