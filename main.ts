@@ -161,7 +161,7 @@ namespace MAX7219_7Seg {
 	  //% block.loc.de="%display|Reihenfolge der Displays umkehren %reversed"
 	  //% jsdoc.loc.de="Konfiguriert die umgekehrte Reihenfolge, wenn mehrere Displays (MAX7219-Module) in einer Kette aneinandergehängt wurden."
 	  //% group="1. Setup" blockExternalInputs=true advanced=true
-      //% parts="MAX7219_7Seg"
+      //% parts="MAX7219_7Seg" reversed.dflt=true
 	  reverseOrder(reversed: boolean) {	    
 	    this._reversed = reversed
 	  }
@@ -239,7 +239,7 @@ namespace MAX7219_7Seg {
 	   * Turn off LEDs on a specific MAX7219 (index 0=farthest on the chain)
 	   */
 	  //% block="%display|Clear LEDs on matrix index %index"
-	  //% block.loc.de="%display|LEDs auf dem Display mit Index %index löschen"
+	  //% block.loc.de="%display|Lösche alle LEDs auf dem Display %index"
 	  //% jsdoc.loc.de="Schaltet auf einem einzelnen Display alle LEDs aus."
 	  //% index.min=0 group="3. Basic light control" advanced=true
       //% parts="MAX7219_7Seg"
@@ -408,8 +408,8 @@ namespace MAX7219_7Seg {
 	 	 * @param displayIndex Number of the display of MAX7219 chain, eg: 0
 		*/
         //% blockId="MAX7219_7Seg_showbit" block="%display|show number %num |at %bit|at display %displayIndex"
-        //% jsdoc.loc.de="Zeigt eine einzelne Ziffer an einer bestimmten Stelle eines bestimmten Display-Moduls."
-        //% jsdoc.loc.en="Shows a single digit at a given position of a given display."
+        //% jsdoc.loc.de="Zeigt eine einzelne Ziffer an einer bestimmten Stelle eines bestimmten Display-Moduls. Die Ziffer -1 löscht die angegebene Stelle."
+        //% jsdoc.loc.en="Shows a single digit at a given position of a given display. The number -1 clears the position."
         //% block.loc.de="%display|Setze die Ziffer %num |an die Stelle %bit|des Displays %displayIndex"
         //% block.loc.en="%display|show number %num |at %bit|at display %displayIndex"
         //% num.loc.de="Ziffer, die angezeigt werden soll, z.B. 5"
@@ -822,25 +822,6 @@ namespace MAX7219_7Seg {
             else this._registerForOne(bit+1, this.buf[displayIndex * this.count + bit] & 0x7F, displayIndex)
         }
 
-        /**
-         * clear LED. 
-		 * 
-		 * @param displayIndex Index of display, eg:0
-         */
-        //% blockId="MAX7219_7Seg_clear" block="%display|clear all digits of %displayIndex"
-        //% jsdoc.loc.de="Löscht die Anzeige (alle Segmente aus) eines bestimmten Displays (Moduls)."
-        //% jsdoc.loc.en="Clears the display (all segments off) of a single module."
-        //% block.loc.de="%display|Lösche alle Stellen des Displays %displayIndex"
-        //% block.loc.en="%display|clear all digits of %displayIndex"
-        //% weight=10 blockGap=8
-        //% parts="MAX7219_7Seg" displayIndex.min=0 displayIndex.dflt=0
-        clear(displayIndex: number = 0) {
-	            for (let i = 0; i < this.count; i++) {
-	                this._registerForOne(i+1, 0, displayIndex)
-	                //this.buf[m * this.count + i] = 0
-	            }
-			
-        }
 
         /**
          * Turn on all display modules. 
