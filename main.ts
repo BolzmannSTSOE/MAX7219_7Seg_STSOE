@@ -1,7 +1,7 @@
 /**
 * makecode Eight Digit 7-Segment Display (MAX7219) Package.
 * 
-* This release is a comibination of different codes from these authors:
+* This release is a comibination of different codes by these authors:
 * Copyright (c) 2018, microbit/micropython Chinese community
 * Copyright (c) 2018 shaoziyang
 * Copyright (c) 2019 Alan Wang - alankrantas
