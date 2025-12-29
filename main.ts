@@ -1,6 +1,13 @@
 /**
 * makecode Eight Digit 7-Segment Display (MAX7219) Package.
-* Created by Andy Bolzmann.
+* 
+* This release is a comibination of different codes from these authors:
+* Copyright (c) 2018, microbit/micropython Chinese community
+* Copyright (c) 2018 shaoziyang
+* Copyright (c) 2019 Alan Wang - alankrantas
+* Copyright (c) 2021 r00b1nh00d
+* Copyright (c) 2021 MKleinSB
+* Copyright (c) 2025 BolzmannSTSOE
 */
 
 /**
