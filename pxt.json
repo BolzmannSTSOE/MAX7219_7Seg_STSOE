@@ -1,6 +1,6 @@
 {
     "name": "MAX7219_7Seg",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "MAX7219 7-Segment Display",
     "description": "MakeCode LED Digit Display (MAX7219) package for micro:bit",
     "longDescription": "Extension for MakeCode to use with Calliope to control a 8-digit 7-segment-display with MAX7219. Supports displaying numbers and controling single segments on each digit. Multiple modules can be chained together.",
