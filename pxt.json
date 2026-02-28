@@ -7,7 +7,7 @@
     "description.de": "Erweiterung für MakeCode zur Anzeige auf MAX7219 8-facher 7-Segment-Anzeige.",
     "longDescription.de": "Erweiterung für MAX7219 8x 7-Segment-Anzeige. Unterstützt Zahl- und Ziffern-Anzeige und Segement-genaue Ansteuerung. Es können mehrere Module aneinandergereiht werden.",
     "license": "MIT",
-    "icon": "icon.png",
+    "icon": "icon_v2.png",
     "dependencies": {
         "core": "*"
     },
